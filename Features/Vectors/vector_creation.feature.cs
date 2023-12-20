@@ -150,6 +150,12 @@ namespace BAVCL.Tests.Features.Vectors
 #line 13
         testRunner.Then("the vector should have the following properties:", ((string)(null)), table2, "Then ");
 #line hidden
+#line 19
+        testRunner.And("it should be cached on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 20
+        testRunner.And("there should be 1 item stored on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
                 TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                             "NaN",
                             "Inf",
@@ -157,11 +163,8 @@ namespace BAVCL.Tests.Features.Vectors
                             "5.0",
                             "0.1234",
                             "-0.2434"});
-#line 19
-        testRunner.And("the vector should have the following values on the CPU and GPU:", ((string)(null)), table3, "And ");
-#line hidden
 #line 21
-        testRunner.And("it should be cached on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+        testRunner.And("the vector should have the following values on the CPU and GPU:", ((string)(null)), table3, "And ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -175,7 +178,7 @@ namespace BAVCL.Tests.Features.Vectors
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Non-cached Vector Creation", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
-#line 23
+#line 25
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -205,7 +208,7 @@ namespace BAVCL.Tests.Features.Vectors
                             "5.0",
                             "0.1234",
                             "-0.2434"});
-#line 24
+#line 26
         testRunner.When("I create the following non-cached vector:", ((string)(null)), table4, "When ");
 #line hidden
                 TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
@@ -223,7 +226,7 @@ namespace BAVCL.Tests.Features.Vectors
                 table5.AddRow(new string[] {
                             "MemorySize",
                             "24"});
-#line 26
+#line 28
         testRunner.Then("the vector should have the following properties:", ((string)(null)), table5, "Then ");
 #line hidden
                 TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
@@ -233,10 +236,10 @@ namespace BAVCL.Tests.Features.Vectors
                             "5.0",
                             "0.1234",
                             "-0.2434"});
-#line 32
+#line 34
         testRunner.And("the vector should have the following values on the CPU:", ((string)(null)), table6, "And ");
 #line hidden
-#line 34
+#line 36
         testRunner.And("it should not be cached on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             }
@@ -251,7 +254,7 @@ namespace BAVCL.Tests.Features.Vectors
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create An Empty Vector Of Given Length", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
-#line 36
+#line 38
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -274,7 +277,7 @@ namespace BAVCL.Tests.Features.Vectors
 #line 7
     this.FeatureBackground();
 #line hidden
-#line 37
+#line 39
         testRunner.When("I create a zeros vector of length 5", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
                 TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
@@ -292,13 +295,13 @@ namespace BAVCL.Tests.Features.Vectors
                 table7.AddRow(new string[] {
                             "MemorySize",
                             "24"});
-#line 38
+#line 40
         testRunner.Then("the vector should have the following properties:", ((string)(null)), table7, "Then ");
 #line hidden
-#line 44
+#line 46
         testRunner.And("the vector should have no values on the CPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 45
+#line 47
         testRunner.And("it should be cached on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             }
