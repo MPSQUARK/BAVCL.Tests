@@ -230,7 +230,7 @@ namespace BAVCL.Tests.Features.Vectors
                 table4.AddRow(new string[] {
                             "-0.2434"});
 #line 37
-        testRunner.When("I create the following non-cached vector:", ((string)(null)), table4, "When ");
+        testRunner.When("I create the following non-cached vector", ((string)(null)), table4, "When ");
 #line hidden
                 TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                             "Columns",
@@ -265,7 +265,7 @@ namespace BAVCL.Tests.Features.Vectors
                 table6.AddRow(new string[] {
                             "-0.2434"});
 #line 51
-        testRunner.And("the vector should have the following values on the CPU:", ((string)(null)), table6, "And ");
+        testRunner.And("the vector should have the following values on the CPU", ((string)(null)), table6, "And ");
 #line hidden
 #line 59
         testRunner.And("it should not be cached on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
@@ -322,14 +322,26 @@ namespace BAVCL.Tests.Features.Vectors
                             "0"});
                 table7.AddRow(new string[] {
                             "MemorySize",
-                            "24"});
+                            "20"});
 #line 63
-        testRunner.Then("the vector should have the following properties:", ((string)(null)), table7, "Then ");
+        testRunner.Then("the vector should have the following properties", ((string)(null)), table7, "Then ");
 #line hidden
+                TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Value"});
+                table8.AddRow(new string[] {
+                            "0"});
+                table8.AddRow(new string[] {
+                            "0"});
+                table8.AddRow(new string[] {
+                            "0"});
+                table8.AddRow(new string[] {
+                            "0"});
+                table8.AddRow(new string[] {
+                            "0"});
 #line 69
-        testRunner.And("the vector should have no values on the CPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+        testRunner.And("the vector should have the following values on the CPU", ((string)(null)), table8, "And ");
 #line hidden
-#line 70
+#line 76
         testRunner.And("it should be cached on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             }

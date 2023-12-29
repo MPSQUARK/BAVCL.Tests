@@ -34,7 +34,7 @@ Feature: Vector Initialisation
             | -0.2434 |
 
     Scenario: Non-cached Vector Creation
-        When I create the following non-cached vector:
+        When I create the following non-cached vector
             | Value   |
             | NaN     |
             | Inf     |
@@ -48,7 +48,7 @@ Feature: Vector Initialisation
             | Length     | 6  |
             | LiveCount  | 0  |
             | MemorySize | 24 |
-        And the vector should have the following values on the CPU:
+        And the vector should have the following values on the CPU
             | Value   |
             | NaN     |
             | Inf     |
@@ -60,11 +60,17 @@ Feature: Vector Initialisation
 
     Scenario: Create An Empty Vector Of Given Length
         When I create a zeros vector of length 5
-        Then the vector should have the following properties:
+        Then the vector should have the following properties
             | Columns    | 0  |
             | Rows       | 1  |
             | Length     | 5  |
             | LiveCount  | 0  |
-            | MemorySize | 24 |
-        And the vector should have no values on the CPU
+            | MemorySize | 20 |
+        And the vector should have the following values on the CPU
+            | Value |
+            | 0     |
+            | 0     |
+            | 0     |
+            | 0     |
+            | 0     |
         And it should be cached on the GPU

@@ -4,3 +4,4 @@ bin
 obj
 obj/*
 .vs/**/*
+obj/Debug/net6.0/BAVCL.Tests.GeneratedMSBuildEditorConfig.editorconfig
