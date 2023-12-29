@@ -1,3 +1,4 @@
+using BAVCL.Core;
 using BAVCL.Tests.Models;
 
 namespace BAVCL.Tests;
@@ -16,7 +17,7 @@ public class VectorSteps
 	public void GivenICreateTheFollowingCachedVector(bool isCached, float[] array)
 	{
 		GPU gpu = _scenarioContext.Get<GPU>("gpu");
-		Vector vector = new(gpu, array, cache: isCached);
+		Vector vector = new(gpu, array.ToArray(), cache: isCached);
 		_scenarioContext.Add("vector", vector);
 	}
 	
@@ -28,7 +29,7 @@ public class VectorSteps
 		_scenarioContext.Add("vector", vector);
 	}
 	
-	[Then(@"the vector should have the following properties:")]
+	[Then(@"the vector should have the following properties")]
 	public void ThenTheVectorShouldHaveTheFollowingProperties(VectorProperties vectorProperties)
 	{
 		Vector vector = _scenarioContext.Get<Vector>("vector");
@@ -48,8 +49,23 @@ public class VectorSteps
 		
 	}
 	
-	[Then(@"the vector should have the following values on the CPU")]
+	[Then(@"the vector should have the following values on the CPU and GPU")]
 	public void ThenTheVectorShouldHaveTheFollowingValuesOnTheCPUAndGPU(float[] vectorValues)
+	{
+		Vector vector = _scenarioContext.Get<Vector>("vector");
+		
+		// Checks that the vector has values on the CPU
+		vector.Value.Should().NotBeNullOrEmpty();
+		vector.Value.Should().BeEquivalentTo(vectorValues);
+		
+		// Checks that the vector has values on the GPU
+		vector.SyncCPU();
+		vector.Value.Should().NotBeNullOrEmpty();
+		vector.Value.Should().BeEquivalentTo(vectorValues);
+	}
+	
+	[Then(@"the vector should have the following values on the CPU")]
+	public void ThenTheVectorShouldHaveTheFollowingValuesOnTheCPU(float[] vectorValues)
 	{
 		Vector vector = _scenarioContext.Get<Vector>("vector");
 		vector.Value.Should().NotBeNullOrEmpty();
@@ -63,6 +79,13 @@ public class VectorSteps
 		vector.SyncCPU();
 		vector.Value.Should().NotBeNullOrEmpty();
 		vector.Value.Should().BeEquivalentTo(vectorValues);
+	}
+	
+	[Then(@"the vector should have no values on the CPU")]
+	public void ThenTheVectorShouldHaveNoValuesOnTheCPU()
+	{
+		Vector vector = _scenarioContext.Get<Vector>("vector");
+		vector.Value.Should().BeNullOrEmpty();
 	}
 	
 	[StepArgumentTransformation]
