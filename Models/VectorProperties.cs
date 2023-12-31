@@ -1,6 +1,4 @@
-﻿using TechTalk.SpecFlow.Assist;
-
-namespace BAVCL.Tests.Models;
+﻿namespace BAVCL.Tests.Models;
 
 [Binding]
 public class VectorProperties

@@ -122,40 +122,40 @@ namespace BAVCL.Tests.Features.Vectors
 #line 7
     this.FeatureBackground();
 #line hidden
-                TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                             "Value"});
-                table1.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "NaN"});
-                table1.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "Inf"});
-                table1.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "-Inf"});
-                table1.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "5.0"});
-                table1.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "0.1234"});
-                table1.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "-0.2434"});
 #line 11
-        testRunner.When("I create the following cached vector", ((string)(null)), table1, "When ");
+        testRunner.When("I create the following cached vector", ((string)(null)), table5, "When ");
 #line hidden
-                TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                             "Columns",
                             "0"});
-                table2.AddRow(new string[] {
+                table6.AddRow(new string[] {
                             "Rows",
                             "1"});
-                table2.AddRow(new string[] {
+                table6.AddRow(new string[] {
                             "Length",
                             "6"});
-                table2.AddRow(new string[] {
+                table6.AddRow(new string[] {
                             "LiveCount",
                             "0"});
-                table2.AddRow(new string[] {
+                table6.AddRow(new string[] {
                             "MemorySize",
                             "24"});
 #line 19
-        testRunner.Then("the vector should have the following properties", ((string)(null)), table2, "Then ");
+        testRunner.Then("the vector should have the following properties", ((string)(null)), table6, "Then ");
 #line hidden
 #line 25
         testRunner.And("it should be cached on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
@@ -163,22 +163,22 @@ namespace BAVCL.Tests.Features.Vectors
 #line 26
         testRunner.And("there should be 1 item stored on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-                TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                             "Value"});
-                table3.AddRow(new string[] {
+                table7.AddRow(new string[] {
                             "NaN"});
-                table3.AddRow(new string[] {
+                table7.AddRow(new string[] {
                             "Inf"});
-                table3.AddRow(new string[] {
+                table7.AddRow(new string[] {
                             "-Inf"});
-                table3.AddRow(new string[] {
+                table7.AddRow(new string[] {
                             "5.0"});
-                table3.AddRow(new string[] {
+                table7.AddRow(new string[] {
                             "0.1234"});
-                table3.AddRow(new string[] {
+                table7.AddRow(new string[] {
                             "-0.2434"});
 #line 27
-        testRunner.And("the vector should have the following values on the CPU and GPU", ((string)(null)), table3, "And ");
+        testRunner.And("the vector should have the following values on the CPU and GPU", ((string)(null)), table7, "And ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -215,57 +215,57 @@ namespace BAVCL.Tests.Features.Vectors
 #line 7
     this.FeatureBackground();
 #line hidden
-                TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
                             "Value"});
-                table4.AddRow(new string[] {
+                table8.AddRow(new string[] {
                             "NaN"});
-                table4.AddRow(new string[] {
+                table8.AddRow(new string[] {
                             "Inf"});
-                table4.AddRow(new string[] {
+                table8.AddRow(new string[] {
                             "-Inf"});
-                table4.AddRow(new string[] {
+                table8.AddRow(new string[] {
                             "5.0"});
-                table4.AddRow(new string[] {
+                table8.AddRow(new string[] {
                             "0.1234"});
-                table4.AddRow(new string[] {
+                table8.AddRow(new string[] {
                             "-0.2434"});
 #line 37
-        testRunner.When("I create the following non-cached vector", ((string)(null)), table4, "When ");
+        testRunner.When("I create the following non-cached vector", ((string)(null)), table8, "When ");
 #line hidden
-                TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
                             "Columns",
                             "0"});
-                table5.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "Rows",
                             "1"});
-                table5.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "Length",
                             "6"});
-                table5.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "LiveCount",
                             "0"});
-                table5.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "MemorySize",
                             "24"});
 #line 45
-        testRunner.Then("the vector should have the following properties", ((string)(null)), table5, "Then ");
+        testRunner.Then("the vector should have the following properties", ((string)(null)), table9, "Then ");
 #line hidden
-                TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
                             "Value"});
-                table6.AddRow(new string[] {
+                table10.AddRow(new string[] {
                             "NaN"});
-                table6.AddRow(new string[] {
+                table10.AddRow(new string[] {
                             "Inf"});
-                table6.AddRow(new string[] {
+                table10.AddRow(new string[] {
                             "-Inf"});
-                table6.AddRow(new string[] {
+                table10.AddRow(new string[] {
                             "5.0"});
-                table6.AddRow(new string[] {
+                table10.AddRow(new string[] {
                             "0.1234"});
-                table6.AddRow(new string[] {
+                table10.AddRow(new string[] {
                             "-0.2434"});
 #line 51
-        testRunner.And("the vector should have the following values on the CPU", ((string)(null)), table6, "And ");
+        testRunner.And("the vector should have the following values on the CPU", ((string)(null)), table10, "And ");
 #line hidden
 #line 59
         testRunner.And("it should not be cached on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
@@ -308,38 +308,38 @@ namespace BAVCL.Tests.Features.Vectors
 #line 62
         testRunner.When("I create a zeros vector of length 5", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-                TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
                             "Columns",
                             "0"});
-                table7.AddRow(new string[] {
+                table11.AddRow(new string[] {
                             "Rows",
                             "1"});
-                table7.AddRow(new string[] {
+                table11.AddRow(new string[] {
                             "Length",
                             "5"});
-                table7.AddRow(new string[] {
+                table11.AddRow(new string[] {
                             "LiveCount",
                             "0"});
-                table7.AddRow(new string[] {
+                table11.AddRow(new string[] {
                             "MemorySize",
                             "20"});
 #line 63
-        testRunner.Then("the vector should have the following properties", ((string)(null)), table7, "Then ");
+        testRunner.Then("the vector should have the following properties", ((string)(null)), table11, "Then ");
 #line hidden
-                TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
                             "Value"});
-                table8.AddRow(new string[] {
+                table12.AddRow(new string[] {
                             "0"});
-                table8.AddRow(new string[] {
+                table12.AddRow(new string[] {
                             "0"});
-                table8.AddRow(new string[] {
+                table12.AddRow(new string[] {
                             "0"});
-                table8.AddRow(new string[] {
+                table12.AddRow(new string[] {
                             "0"});
-                table8.AddRow(new string[] {
+                table12.AddRow(new string[] {
                             "0"});
 #line 69
-        testRunner.And("the vector should have the following values on the CPU", ((string)(null)), table8, "And ");
+        testRunner.And("the vector should have the following values on the CPU", ((string)(null)), table12, "And ");
 #line hidden
 #line 76
         testRunner.And("it should be cached on the GPU", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");

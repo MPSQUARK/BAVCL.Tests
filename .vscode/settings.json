@@ -2,5 +2,14 @@
     "editor.rulers": [
         100
     ],
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    // hide files from explorer if the file name contains .feature.cs if the file .feature exists
+    "files.exclude": {
+        "**/*.feature.cs": {
+            "when": "$(basename)"
+        },
+        "bin": true,
+        "obj": true,
+        ".vs": true,
+    },
 }
