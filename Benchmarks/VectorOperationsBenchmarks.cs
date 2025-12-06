@@ -11,15 +11,15 @@ namespace BAVCL.Tests.Benchmarks;
 [SimpleJob(RuntimeMoniker.Net80)]
 public class VectorOperationsBenchmarks
 {
-    private GPU? _gpu;
-    private Vector? _vectorA_1K;
-    private Vector? _vectorB_1K;
-    private Vector? _vectorA_10K;
-    private Vector? _vectorB_10K;
-    private Vector? _vectorA_100K;
-    private Vector? _vectorB_100K;
-    private Vector? _vectorA_1M;
-    private Vector? _vectorB_1M;
+    private GPU _gpu = null!;
+    private Vector _vectorA_1K = null!;
+    private Vector _vectorB_1K = null!;
+    private Vector _vectorA_10K = null!;
+    private Vector _vectorB_10K = null!;
+    private Vector _vectorA_100K = null!;
+    private Vector _vectorB_100K = null!;
+    private Vector _vectorA_1M = null!;
+    private Vector _vectorB_1M = null!;
 
     [GlobalSetup]
     public void Setup()
@@ -56,84 +56,48 @@ public class VectorOperationsBenchmarks
     #region Addition Benchmarks
 
     [Benchmark]
-    public Vector VectorAddition_1K()
-    {
-        return _vectorA_1K! + _vectorB_1K!;
-    }
+    public Vector VectorAddition_1K() => _vectorA_1K + _vectorB_1K;
 
     [Benchmark]
-    public Vector VectorAddition_10K()
-    {
-        return _vectorA_10K! + _vectorB_10K!;
-    }
+    public Vector VectorAddition_10K() => _vectorA_10K + _vectorB_10K;
 
     [Benchmark]
-    public Vector VectorAddition_100K()
-    {
-        return _vectorA_100K! + _vectorB_100K!;
-    }
+    public Vector VectorAddition_100K() => _vectorA_100K + _vectorB_100K;
 
     [Benchmark]
-    public Vector VectorAddition_1M()
-    {
-        return _vectorA_1M! + _vectorB_1M!;
-    }
+    public Vector VectorAddition_1M() => _vectorA_1M + _vectorB_1M;
 
     #endregion
 
     #region Subtraction Benchmarks
 
     [Benchmark]
-    public Vector VectorSubtraction_1K()
-    {
-        return _vectorA_1K! - _vectorB_1K!;
-    }
+    public Vector VectorSubtraction_1K() => _vectorA_1K - _vectorB_1K;
 
     [Benchmark]
-    public Vector VectorSubtraction_10K()
-    {
-        return _vectorA_10K! - _vectorB_10K!;
-    }
+    public Vector VectorSubtraction_10K() => _vectorA_10K - _vectorB_10K;
 
     [Benchmark]
-    public Vector VectorSubtraction_100K()
-    {
-        return _vectorA_100K! - _vectorB_100K!;
-    }
+    public Vector VectorSubtraction_100K() => _vectorA_100K - _vectorB_100K;
 
     [Benchmark]
-    public Vector VectorSubtraction_1M()
-    {
-        return _vectorA_1M! - _vectorB_1M!;
-    }
+    public Vector VectorSubtraction_1M() => _vectorA_1M - _vectorB_1M;
 
     #endregion
 
     #region Multiplication Benchmarks
 
     [Benchmark]
-    public Vector VectorMultiplication_1K()
-    {
-        return _vectorA_1K! * _vectorB_1K!;
-    }
+    public Vector VectorMultiplication_1K() => _vectorA_1K * _vectorB_1K;
 
     [Benchmark]
-    public Vector VectorMultiplication_10K()
-    {
-        return _vectorA_10K! * _vectorB_10K!;
-    }
+    public Vector VectorMultiplication_10K() => _vectorA_10K * _vectorB_10K;
 
     [Benchmark]
-    public Vector VectorMultiplication_100K()
-    {
-        return _vectorA_100K! * _vectorB_100K!;
-    }
+    public Vector VectorMultiplication_100K() => _vectorA_100K * _vectorB_100K;
 
     [Benchmark]
-    public Vector VectorMultiplication_1M()
-    {
-        return _vectorA_1M! * _vectorB_1M!;
-    }
+    public Vector VectorMultiplication_1M() => _vectorA_1M * _vectorB_1M;
 
     #endregion
 }

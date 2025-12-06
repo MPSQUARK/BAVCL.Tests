@@ -61,10 +61,10 @@ public class VectorCreationTests
     }
 
     [Theory]
-    [InlineData(10, 40)]
-    [InlineData(100, 400)]
-    [InlineData(1000, 4000)]
-    public void ZerosVector_ShouldCreateEmptyVector(int length, int expectedMemorySize)
+    [InlineData(10)]
+    [InlineData(100)]
+    [InlineData(1000)]
+    public void ZerosVector_ShouldCreateEmptyVector(int length)
     {
         // Act
         var vector = new Vector(_gpu, length);
