@@ -10,9 +10,13 @@ public class VectorAccessTests
     public VectorAccessTests()
     {
         _gpu = new GPU();
-        _testVector = new Vector(
+        _testVector = new(
             _gpu,
-            new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
+            [
+                1, 2, 3, 4, 5,
+                6, 7, 8, 9, 10,
+                11, 12, 13, 14, 15
+            ],
             columns: 5,
             cache: true
         );
@@ -23,10 +27,34 @@ public class VectorAccessTests
     [InlineData(5, 6f)]
     [InlineData(10, 11f)]
     [InlineData(14, 15f)]
+    /// <summary>
+    /// Tests simple index access on the vector
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="expected"></param>
     public void VectorIndexAccess_ShouldReturnCorrectValue(int index, float expected)
     {
         // Act
         var result = _testVector[index];
+
+        // Assert
+        result.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(0, 0, 1f)]
+    [InlineData(1, 2, 8f)]
+    [InlineData(2, 4, 15f)]
+    /// <summary>
+    /// Tests 2D index access on the vector
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="column"></param>
+    /// <param name="expected"></param>
+    public void VectorIndex2DAccess_ShouldReturnCorrectValue(int row, int column, float expected)
+    {
+        // Act
+        var result = _testVector.GetValue(row, column);
 
         // Assert
         result.Should().Be(expected);
