@@ -1,5 +1,3 @@
-using static BAVCL.Core.Enums;
-
 namespace BAVCL.Tests;
 
 public class VectorAccessTests
@@ -9,7 +7,7 @@ public class VectorAccessTests
 
     public VectorAccessTests()
     {
-        _gpu = new GPU();
+        _gpu = GPUManager.Default;
         _testVector = new(
             _gpu,
             [
@@ -54,7 +52,7 @@ public class VectorAccessTests
     public void VectorIndex2DAccess_ShouldReturnCorrectValue(int row, int column, float expected)
     {
         // Act
-        var result = _testVector.GetValue(row, column);
+        var result = _testVector.GetAt(row, column);
 
         // Assert
         result.Should().Be(expected);

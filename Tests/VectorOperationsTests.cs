@@ -1,6 +1,3 @@
-using FluentAssertions;
-using Xunit;
-
 namespace BAVCL.Tests;
 
 public class VectorOperationsTests
@@ -9,7 +6,7 @@ public class VectorOperationsTests
 
     public VectorOperationsTests()
     {
-        _gpu = new GPU();
+        _gpu = GPUManager.Default;
     }
 
     [Theory]

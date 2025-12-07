@@ -1,6 +1,3 @@
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
-
 namespace BAVCL.Tests.Benchmarks;
 
 /// <summary>
@@ -19,7 +16,7 @@ public class VectorCreationBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _gpu = new GPU();
+        _gpu = GPUManager.Default;
         _gpu.Should().NotBeNull();
 
         _data1K = Enumerable.Range(0, 1_000).Select(i => (float)i).ToArray();

@@ -1,7 +1,3 @@
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
-using static BAVCL.Core.Enums;
-
 namespace BAVCL.Tests.Benchmarks;
 
 /// <summary>
@@ -21,7 +17,7 @@ public class MemoryTransferBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _gpu = new GPU();
+        _gpu = GPUManager.Default;
         _gpu.Should().NotBeNull();
 
         _vector1K = new Vector(_gpu, Enumerable.Range(0, 1_000).Select(i => (float)i).ToArray(), cache: true);
