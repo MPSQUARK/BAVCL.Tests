@@ -16,6 +16,7 @@ public class Vector3StructuralTests(GpuTestFixture fixture) : GpuTestBase(fixtur
         copy.Value.ShouldBeCloseTo(original.Value);
     }
 
+    // Known LRU issue: same cache resync problem as Vector.Concat row-axis append.
     [Fact]
     public void Concat_AppendsVector3Values()
     {

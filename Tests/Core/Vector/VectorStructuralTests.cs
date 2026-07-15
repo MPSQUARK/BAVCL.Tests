@@ -26,6 +26,8 @@ public class VectorStructuralTests(GpuTestFixture fixture) : GpuTestBase(fixture
         a.Dot(b).Should().Be(32f);
     }
 
+    // Known LRU issue: CPU-side append updates Value but GPU cache can resync stale data
+    // when lengths mismatch (IsICacheableLive / SyncCPU path). Length not updating is a symptom.
     [Fact]
     public void Concat_RowAxis_AppendsViaAppend()
     {

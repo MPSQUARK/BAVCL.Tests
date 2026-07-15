@@ -1,3 +1,4 @@
+using BAVCL.Core.Exceptions;
 using BAVCL.Geometric;
 using BAVCL.Tests.Helpers;
 
@@ -41,24 +42,26 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     }
 
     [Fact]
-    public void Magnitude_DifferentLengths_ThrowsWithMagnitudeMessage()
+    public void Magnitude_DifferentLengths_ThrowsVector3LengthMismatchException()
     {
         var a = new Vector3(Gpu, [1f, 2f, 3f]);
         var b = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f]);
 
         var act = () => Vector3.Magnitude(a, b);
 
-        act.Should().Throw<Exception>().WithMessage("*Magnitude*");
+        act.Should().Throw<Vector3LengthMismatchException>()
+            .WithMessage("*Magnitude*");
     }
 
     [Fact]
-    public void Distance_DifferentLengths_ThrowsWithDistanceMessage()
+    public void Distance_DifferentLengths_ThrowsVector3LengthMismatchException()
     {
         var a = new Vector3(Gpu, [1f, 2f, 3f]);
         var b = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
 
         var act = () => Vector3.Distance(a, b);
 
-        act.Should().Throw<Exception>().WithMessage("*Distance*");
+        act.Should().Throw<Vector3LengthMismatchException>()
+            .WithMessage("*Distance*");
     }
 }

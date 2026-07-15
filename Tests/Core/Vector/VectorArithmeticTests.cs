@@ -5,13 +5,14 @@ namespace BAVCL.Tests.Core.VectorTests;
 public class VectorArithmeticTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 {
     [Fact]
-    public void UnaryPlus_ReturnsIdentity()
+    public void UnaryPlus_ReturnsAbs()
     {
         var vector = CreateVector(VectorFactory.MixedSigns);
 
         var result = +vector;
+        var expected = SyncValues(Vector.AbsX(vector));
 
-        SyncValues(result).ShouldBeCloseTo(VectorFactory.MixedSigns);
+        SyncValues(result).ShouldBeCloseTo(expected);
     }
 
     [Fact]

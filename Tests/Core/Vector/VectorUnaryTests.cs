@@ -56,20 +56,57 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         SyncValues(result).ShouldBeCloseTo([0.5f, 0.25f, 0.2f]);
     }
 
-    [Fact]
-    public void Rsqrt_ReturnsReciprocalSqrt()
+    [Theory]
+    [InlineData(4f, 0.5f)]
+    [InlineData(9f, 1f / 3f)]
+    [InlineData(16f, 0.25f)]
+    public void Rsqrt_PositiveValues_ReturnReciprocalSqrt(float input, float expected)
     {
-        var vector = CreateVector([4f, 9f, 16f]);
+        var vector = CreateVector([input]);
 
         var result = Vector.Rsqrt(vector);
 
-        SyncValues(result).ShouldBeCloseTo([0.5f, 1f / 3f, 0.25f], tolerance: 1e-3f);
+        SyncValues(result)[0].ShouldBeCloseTo(expected, 1e-3f);
+    }
+
+    [Fact]
+    public void Rsqrt_Zero_ReturnsPositiveInfinity()
+    {
+        var vector = CreateVector([0f]);
+
+        var result = Vector.Rsqrt(vector);
+
+        float.IsPositiveInfinity(SyncValues(result)[0]).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Rsqrt_NegativeValue_ReturnsNaN()
+    {
+        var vector = CreateVector([-4f]);
+
+        var result = Vector.Rsqrt(vector);
+
+        float.IsNaN(SyncValues(result)[0]).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Rsqrt_MixedSigns_ComputesPerElement()
+    {
+        var vector = CreateVector([4f, 0f, -9f, 16f]);
+
+        var result = Vector.Rsqrt(vector);
+        var values = SyncValues(result);
+
+        values[0].ShouldBeCloseTo(0.5f, 1e-3f);
+        float.IsPositiveInfinity(values[1]).Should().BeTrue();
+        float.IsNaN(values[2]).Should().BeTrue();
+        values[3].ShouldBeCloseTo(0.25f, 1e-3f);
     }
 
     [Fact]
     public void RsqrtX_GpuPath_MatchesRsqrt()
     {
-        var vector = CreateVector([4f, 9f, 16f]);
+        var vector = CreateVector([4f, 0f, -9f, 16f]);
 
         var cpu = SyncValues(Vector.Rsqrt(vector));
         var gpu = SyncValues(Vector.RsqrtX(vector));
