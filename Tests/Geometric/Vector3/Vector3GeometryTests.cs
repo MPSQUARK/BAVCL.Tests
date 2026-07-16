@@ -42,26 +42,26 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     }
 
     [Fact]
-    public void Magnitude_DifferentLengths_ThrowsVector3LengthMismatchException()
+    public void Magnitude_DifferentLengths_ThrowsLengthMismatchException()
     {
         var a = new Vector3(Gpu, [1f, 2f, 3f]);
         var b = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f]);
 
         var act = () => Vector3.Magnitude(a, b);
 
-        act.Should().Throw<Vector3LengthMismatchException>()
+        act.Should().Throw<LengthMismatchException>()
             .WithMessage("*Magnitude*");
     }
 
     [Fact]
-    public void Distance_DifferentLengths_ThrowsVector3LengthMismatchException()
+    public void Distance_DifferentLengths_ThrowsLengthMismatchException()
     {
         var a = new Vector3(Gpu, [1f, 2f, 3f]);
         var b = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
 
         var act = () => Vector3.Distance(a, b);
 
-        act.Should().Throw<Vector3LengthMismatchException>()
+        act.Should().Throw<LengthMismatchException>()
             .WithMessage("*Distance*");
     }
 }
