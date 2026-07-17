@@ -84,9 +84,8 @@ public class VectorBroadcastTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     }
 
     [Fact]
-    public void Broadcast_ColumnProxyPlusMatrix_MatchesNumPy()
+    public void Broadcast_ColumnPlusMatrix_MatchesNumPy()
     {
-        // (M,1) stored as 1D length M — NumPy broadcast shape metadata is (M,1).
         var shapeM = new[] { 2, 3 };
         var shapeC = new[] { 2, 1 };
         var matrixData = BroadcastReference.SequentialData(2, 3, 10f, 1f);

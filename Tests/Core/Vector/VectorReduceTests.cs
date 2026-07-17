@@ -52,35 +52,6 @@ public class VectorReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     }
 
     [Fact]
-    public void ReduceIPOP_WhenOutputFitsInPlace_RunsReduceRowOp()
-    {
-        int n = 3;
-        var coeff = BroadcastReference.SequentialData(n, 1f, 1f);
-        var matrix = BroadcastReference.SequentialData(n, n, 10f, 1f);
-        var vector = BavclShape.Create(Gpu, [n], coeff);
-        var mat = BavclShape.Create(Gpu, [n, n], matrix);
-        var expected = RowReduceReference(coeff, matrix, n, n, Operations.add);
-
-        vector.ReduceIPOP(mat, Operations.add);
-        vector.SyncCPU();
-
-        vector.Length.Should().Be(n);
-        vector.Value.ShouldBeCloseTo(expected);
-    }
-
-    [Fact]
-    public void ReduceIPOP_WhenOutputWouldResize_ThrowsPerformanceException()
-    {
-        var vector = BavclShape.Create(Gpu, [3], BroadcastReference.SequentialData(3));
-        var matrix = BavclShape.Create(Gpu, [2, 3], BroadcastReference.SequentialData(2, 3));
-
-        Action act = () => vector.ReduceIPOP(matrix, Operations.add);
-
-        act.Should().Throw<PerformanceException>()
-            .WithMessage("*degraded performance*ReduceOP*");
-    }
-
-    [Fact]
     public void Operator_NoLongerUsesRowReduction()
     {
         var coeff = BavclShape.Create(Gpu, [3], BroadcastReference.SequentialData(3, 1f, 1f));

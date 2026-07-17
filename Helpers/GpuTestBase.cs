@@ -9,7 +9,7 @@ public abstract class GpuTestBase : IClassFixture<GpuTestFixture>
         Gpu = fixture.Gpu;
     }
 
-    protected Vector CreateVector(float[] values, int columns = 1, bool cache = true) =>
+    protected Vector CreateVector(float[] values, int columns = 0, bool cache = true) =>
         new(Gpu, values, columns, cache);
 
     protected static float[] SyncValues(Vector vector)

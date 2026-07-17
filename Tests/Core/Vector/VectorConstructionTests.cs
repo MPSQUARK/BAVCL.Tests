@@ -13,7 +13,7 @@ public class VectorConstructionTests(GpuTestFixture fixture) : GpuTestBase(fixtu
         var vector = CreateVector(VectorFactory.Small1D, cache: cache);
 
         vector.Length.Should().Be(5);
-        vector.Columns.Should().Be(1);
+        vector.Columns.Should().Be(0);
         vector.MemorySize.Should().Be(5 * sizeof(float));
         SyncValues(vector).ShouldBeCloseTo(VectorFactory.Small1D);
     }
@@ -58,13 +58,13 @@ public class VectorConstructionTests(GpuTestFixture fixture) : GpuTestBase(fixtu
     }
 
     [Fact]
-    public void Flatten_SetsColumnsToOne()
+    public void Flatten_SetsColumnsToZero()
     {
         var vector = CreateVector(VectorFactory.Matrix3x5, columns: 5);
 
         vector.Flatten();
 
-        vector.Columns.Should().Be(1);
+        vector.Columns.Should().Be(0);
     }
 
     [Fact]
