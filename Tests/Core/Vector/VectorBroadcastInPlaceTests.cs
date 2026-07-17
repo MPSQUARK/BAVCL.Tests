@@ -4,8 +4,6 @@ namespace BAVCL.Tests.Core.VectorTests;
 
 public class VectorBroadcastInPlaceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 {
-    // KNOWN: IPOP broadcast path is unimplemented (empty stub in Vector.IPOP).
-
     [Theory]
     [MemberData(nameof(IpopBroadcastCases))]
     public void IPOP_Broadcast_MatchesNumPyReference(
@@ -78,7 +76,7 @@ public class VectorBroadcastInPlaceTests(GpuTestFixture fixture) : GpuTestBase(f
             yield return
             [
                 new[] { m, n }, BroadcastReference.SequentialData(m, n, 10f, 1f),
-                new[] { n }, BroadcastReference.SequentialData(n, 1f, 1f),
+                m == n ? new[] { 1, n } : new[] { n }, BroadcastReference.SequentialData(n, 1f, 1f),
                 Operations.multiply
             ];
         }

@@ -13,7 +13,7 @@ public static class BroadcastTestData
 
             yield return Pack(
                 [m, n], BroadcastReference.SequentialData(m, n, 10f, 1f),
-                [n], BroadcastReference.SequentialData(n, 1f, 1f));
+                m == n ? [1, n] : [n], BroadcastReference.SequentialData(n, 1f, 1f));
 
             yield return Pack(
                 [1, n], BroadcastReference.SequentialData(1, n, 1f, 1f),

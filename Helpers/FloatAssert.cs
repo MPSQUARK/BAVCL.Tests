@@ -1,5 +1,3 @@
-using BAVCL.Utility;
-
 namespace BAVCL.Tests.Helpers;
 
 public static class FloatAssert
@@ -10,11 +8,18 @@ public static class FloatAssert
     {
         actual.Should().HaveCount(expected.Length);
         for (int i = 0; i < expected.Length; i++)
-            Util.IsClose(actual[i], expected[i], tolerance).Should().BeTrue(
+            IsClose(actual[i], expected[i], tolerance).Should().BeTrue(
                 $"expected[{i}]={expected[i]}, actual[{i}]={actual[i]}");
     }
 
     public static void ShouldBeCloseTo(this float actual, float expected, float tolerance = DefaultTolerance) =>
-        Util.IsClose(actual, expected, tolerance).Should().BeTrue(
+        IsClose(actual, expected, tolerance).Should().BeTrue(
             $"expected={expected}, actual={actual}");
+
+    static bool IsClose(float actual, float expected, float tolerance)
+    {
+        float diff = MathF.Abs(actual - expected);
+        float scale = MathF.Max(MathF.Abs(actual), MathF.Abs(expected));
+        return diff <= tolerance + tolerance * scale;
+    }
 }

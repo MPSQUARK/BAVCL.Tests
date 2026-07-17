@@ -32,7 +32,7 @@ public class VectorCrossTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var aData = BroadcastReference.SequentialData(m, k, 1f, 1f);
         var bData = BroadcastReference.SequentialData(k, 1f, 1f);
         var a = BavclShape.Create(Gpu, [m, k], aData);
-        var b = BavclShape.Create(Gpu, [k], bData);
+        var b = BavclShape.Create(Gpu, [k, 1], bData);
         var expected = BroadcastReference.MatMulVector(aData, m, k, bData);
 
         var result = Vector.Cross(a, b);
@@ -65,7 +65,7 @@ public class VectorCrossTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var matrixData = BroadcastReference.SequentialData(2, 3, 10f, 1f);
         var vecData = BroadcastReference.SequentialData(3, 1f, 1f);
         var matrix = BavclShape.Create(Gpu, [2, 3], matrixData);
-        var vector = BavclShape.Create(Gpu, [3], vecData);
+        var vector = BavclShape.Create(Gpu, [3, 1], vecData);
         var expected = BroadcastReference.MatMulVector(matrixData, 2, 3, vecData);
 
         var result = Vector.Cross(matrix, vector);

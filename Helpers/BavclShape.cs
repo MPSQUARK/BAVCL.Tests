@@ -7,22 +7,21 @@ public static class BavclShape
 {
     public static Vector Create(GPU gpu, int[] numpyShape, float[] data, bool cache = true)
     {
-        if (numpyShape.Length == 1)
-            return new Vector(gpu, data, columns: 1, cache);
-
-        int cols = numpyShape[^1];
-        return new Vector(gpu, data, columns: cols, cache);
+        int columns = numpyShape.Length == 1 ? 1 : numpyShape[^1];
+        return new Vector(gpu, data, columns, cache);
     }
 
-  public static int[] ToNumpyShape(Vector vector)
+    public static int[] ToNumpyShape(Vector vector)
     {
-        if (vector.Columns == 1)
-            return [vector.Length];
+        (int rows, int cols) = vector.Shape();
 
-        if (vector.RowCount() == 1)
-            return [1, vector.Columns];
+        if (cols == 1)
+            return [rows];
 
-        return [vector.RowCount(), vector.Columns];
+        if (rows == 1)
+            return [1, cols];
+
+        return [rows, cols];
     }
 
     public static int[] BroadcastOutputShape(int[] shapeA, int[] shapeB) =>
@@ -33,12 +32,11 @@ public static class BavclShape
 
     public static void ShouldMatchNumpyShape(Vector vector, int[] expectedNumpyShape, float[] expectedData)
     {
-        var actual = vector;
-        actual.SyncCPU();
+        vector.SyncCPU();
 
         int expectedLength = expectedNumpyShape.Aggregate(1, (a, b) => a * b);
-        actual.Length.Should().Be(expectedLength);
-        actual.Columns.Should().Be(BavclColumns(expectedNumpyShape));
-        actual.Value.ShouldBeCloseTo(expectedData);
+        vector.Length.Should().Be(expectedLength);
+        vector.Columns.Should().Be(BavclColumns(expectedNumpyShape));
+        vector.Value.ShouldBeCloseTo(expectedData);
     }
 }

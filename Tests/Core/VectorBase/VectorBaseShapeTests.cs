@@ -17,9 +17,9 @@ public class VectorBaseShapeTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     }
 
     [Fact]
-    public void RowCount_ReturnsOneFor1D()
+    public void RowCount_ReturnsLengthFor1D()
     {
-        CreateVector([1f, 2f, 3f]).RowCount().Should().Be(1);
+        CreateVector([1f, 2f, 3f]).RowCount().Should().Be(3);
     }
 
     [Fact]

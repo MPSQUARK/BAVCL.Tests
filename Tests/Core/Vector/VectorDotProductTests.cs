@@ -1,3 +1,4 @@
+using BAVCL.Core.Exceptions;
 using BAVCL.Tests.Helpers;
 
 namespace BAVCL.Tests.Core.VectorTests;
@@ -77,10 +78,9 @@ public class VectorDotProductTests(GpuTestFixture fixture) : GpuTestBase(fixture
         Action reference = () => _ = BroadcastReference.InnerProduct(a, b);
         reference.Should().Throw<ArgumentException>();
 
-        // KNOWN: BAVCL misroutes unequal 1D operands through vectormatrixOP instead of throwing.
         var vectorA = CreateVector(a);
         var vectorB = CreateVector(b);
         Action bavcl = () => _ = Vector.Dot(vectorA, vectorB);
-        bavcl.Should().NotThrow();
+        bavcl.Should().Throw<LengthMismatchException>();
     }
 }
