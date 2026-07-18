@@ -18,6 +18,12 @@ public static class FloatAssert
 
     static bool IsClose(float actual, float expected, float tolerance)
     {
+        if (float.IsNaN(actual) && float.IsNaN(expected))
+            return true;
+
+        if (float.IsInfinity(actual) && float.IsInfinity(expected))
+            return Math.Sign(actual) == Math.Sign(expected);
+
         float diff = MathF.Abs(actual - expected);
         float scale = MathF.Max(MathF.Abs(actual), MathF.Abs(expected));
         return diff <= tolerance + tolerance * scale;

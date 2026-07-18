@@ -1,3 +1,4 @@
+using BAVCL.Core;
 using BAVCL.Geometric;
 using BAVCL.Tests.Helpers;
 
@@ -54,7 +55,7 @@ public class VectorConstructionTests(GpuTestFixture fixture) : GpuTestBase(fixtu
     {
         var vector = CreateVector(VectorFactory.Matrix3x5, columns: 5);
 
-        vector.Shape().Should().Be((3, 5));
+        vector.Shape().Should().Be(new Shape(3, 5));
     }
 
     [Fact]

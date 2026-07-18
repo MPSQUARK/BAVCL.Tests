@@ -1,6 +1,5 @@
-using BAVCL.Core.Enums;
+using BAVCL.Core;
 using BAVCL.Tests.Helpers;
-
 namespace BAVCL.Tests.Core.VectorBase;
 
 public class VectorBaseLifecycleTests(GpuTestFixture fixture) : GpuTestBase(fixture)
@@ -9,8 +8,11 @@ public class VectorBaseLifecycleTests(GpuTestFixture fixture) : GpuTestBase(fixt
     public void SyncCPU_RoundTripsGpuValues()
     {
         var vector = CreateVector([1f, 2f, 3f]);
-        vector.SetAt(1, IndexingMode.SyncBoth, 99f);
-
+        using (var scope = vector.CpuScope(syncOnDispose: true))
+        {
+            EditableView<float> view = scope.View;
+            view[1] = 99f;
+        }
         vector.SyncCPU();
 
         vector.Value[1].Should().Be(99f);
@@ -27,11 +29,11 @@ public class VectorBaseLifecycleTests(GpuTestFixture fixture) : GpuTestBase(fixt
     }
 
     [Fact]
-    public void GetValues_ReturnsCpuArray()
+    public void ToArray_ReturnsCpuCopy()
     {
         var vector = CreateVector([7f, 8f, 9f]);
 
-        vector.GetValues().ShouldBeCloseTo([7f, 8f, 9f]);
+        vector.ToArray().ShouldBeCloseTo([7f, 8f, 9f]);
     }
 
     [Fact]

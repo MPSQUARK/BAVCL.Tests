@@ -1,8 +1,6 @@
-using BAVCL.Core.Enums;
-using BAVCL.Core.Exceptions;
+using BAVCL.Core;
 using BAVCL.Geometric;
-using BAVCL.Geometric.Enums;
-using BAVCL.Tests.Helpers;
+using BAVCL.Geometric.Enums;using BAVCL.Tests.Helpers;
 
 namespace BAVCL.Tests.Geometric.Vector3Tests;
 
@@ -59,11 +57,16 @@ public class Vector3IndexingTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     }
 
     [Fact]
-    public void GetAtSetAt_WithIndexingMode_SyncsGpu()
+    public void SetAt_WithCpuScope_SyncsGpu()
     {
         var vec = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
 
-        vec.SetAt(1, Coord.z, IndexingMode.SyncBoth, 99f);
-        vec.GetAt(1, Coord.z, IndexingMode.SyncCPU).Should().Be(99f);
+        using (var scope = vec.CpuScope(syncOnDispose: true))
+        {
+            EditableView<float> view = scope.View;
+            view[5] = 99f;
+        }
+
+        vec.RetrieveReadOnlySpan()[5].Should().Be(99f);
     }
 }

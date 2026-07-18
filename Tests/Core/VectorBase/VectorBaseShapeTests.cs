@@ -1,3 +1,4 @@
+using BAVCL.Core;
 using BAVCL.Tests.Helpers;
 
 namespace BAVCL.Tests.Core.VectorBase;
@@ -19,7 +20,7 @@ public class VectorBaseShapeTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Shape_ColumnVector_ReturnsLengthByOne()
     {
-        BavclShape.Create(Gpu, [3, 1], [1f, 2f, 3f]).Shape().Should().Be((3, 1));
+        BavclShape.Create(Gpu, [3, 1], [1f, 2f, 3f]).Shape().Should().Be(new Shape(3, 1));
     }
 
     [Fact]
@@ -31,7 +32,7 @@ public class VectorBaseShapeTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Shape_Flat1D_ReturnsOneByLength()
     {
-        CreateVector([1f, 2f, 3f]).Shape().Should().Be((1, 3));
+        CreateVector([1f, 2f, 3f]).Shape().Should().Be(new Shape(1, 3));
     }
 
     [Fact]

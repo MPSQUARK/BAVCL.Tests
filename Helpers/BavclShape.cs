@@ -1,3 +1,5 @@
+using BAVCL.Core;
+
 namespace BAVCL.Tests.Helpers;
 
 /// <summary>
@@ -28,11 +30,11 @@ public static class BavclShape
         if (vector.Columns == 1)
             return [vector.Length, 1];
 
-        (int rows, int cols) = vector.Shape();
-        if (rows == 1)
-            return [1, cols];
+        Shape shape = vector.Shape();
+        if (shape.Rows == 1)
+            return [1, shape.Cols];
 
-        return [rows, cols];
+        return [shape.Rows, shape.Cols];
     }
 
     public static int[] BroadcastOutputShape(int[] shapeA, int[] shapeB) =>
