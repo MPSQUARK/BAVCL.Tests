@@ -61,7 +61,7 @@ public class Vector3IndexingTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vec = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
 
-        using (var scope = vec.CpuScope(syncOnDispose: true))
+        using (var scope = vec.CpuScopeAndSync())
         {
             EditableView<float> view = scope.View;
             view[5] = 99f;

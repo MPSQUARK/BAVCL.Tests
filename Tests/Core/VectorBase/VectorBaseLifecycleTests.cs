@@ -8,7 +8,7 @@ public class VectorBaseLifecycleTests(GpuTestFixture fixture) : GpuTestBase(fixt
     public void SyncCPU_RoundTripsGpuValues()
     {
         var vector = CreateVector([1f, 2f, 3f]);
-        using (var scope = vector.CpuScope(syncOnDispose: true))
+        using (var scope = vector.CpuScopeAndSync())
         {
             EditableView<float> view = scope.View;
             view[1] = 99f;

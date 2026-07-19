@@ -31,7 +31,7 @@ public class VectorIndexingTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector(VectorFactory.Small1D);
 
-        using (var scope = vector.CpuScope(syncOnDispose: true))
+        using (var scope = vector.CpuScopeAndSync())
         {
             EditableView<float> view = scope.View;
             view[2] = 99f;
