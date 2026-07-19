@@ -18,7 +18,7 @@ dotnet run -c Release --project BAVCL.Benchmarks -- --filter *SpanReadBenchmarks
 
 | Class | Purpose |
 |-------|---------|
-| `SpanReadBenchmarks` | `GetCpuReadOnlySpan` vs `RetrieveReadOnlySpan` vs `ToArray()` on GPU-resident vectors (1K / 100K / 1M) |
+| `SpanReadBenchmarks` | `GetCpuReadOnlySpan` vs `GetReadOnlySpan` vs `ToArray()` on GPU-resident vectors (1K / 100K / 1M) |
 | `StatsReadBenchmarks` | `Sum`, `Var`, `Min` after span migration |
 | `CacheUpdateBenchmarks` | `UpdateCache()` same-length upload |
 | `MemoryTransferBenchmarks` | `SyncCPU`, GPU-resident pull, `UpdateCache`, allocate+upload |
