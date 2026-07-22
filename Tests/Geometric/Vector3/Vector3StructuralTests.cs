@@ -23,7 +23,7 @@ public class Vector3StructuralTests(GpuTestFixture fixture) : GpuTestBase(fixtur
         var a = new Vector3(Gpu, [1f, 2f, 3f]);
         var b = new Vector3(Gpu, [4f, 5f, 6f]);
 
-        var result = Vector3.Concat(a, b);
+        var result = a.Concat(b);
 
         result.SyncCPU();
         result.Length.Should().Be(6);
@@ -35,7 +35,7 @@ public class Vector3StructuralTests(GpuTestFixture fixture) : GpuTestBase(fixtur
     {
         var vec = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
 
-        var row = Vector3.AccessRow(vec, 1);
+        var row = vec.AccessRow(1);
 
         row.SyncCPU();
         row.Value.ShouldBeCloseTo([4f, 5f, 6f]);

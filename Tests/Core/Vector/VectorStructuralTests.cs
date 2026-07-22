@@ -9,7 +9,7 @@ public class VectorStructuralTests(GpuTestFixture fixture) : GpuTestBase(fixture
     {
         var vector = CreateVector(VectorFactory.Matrix3x5, columns: 5);
 
-        var result = Vector.Transpose(vector);
+        var result = vector.Transpose();
 
         result.Columns.Should().Be(3);
         result.RowCount().Should().Be(5);
@@ -22,7 +22,7 @@ public class VectorStructuralTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var a = CreateVector([1f, 2f, 3f]);
         var b = CreateVector([4f, 5f, 6f]);
 
-        Vector.Dot(a, b).Should().Be(32f);
+        a.Dot(b).Should().Be(32f);
         a.Dot(b).Should().Be(32f);
     }
 
@@ -34,7 +34,7 @@ public class VectorStructuralTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var a = CreateVector([1f, 2f, 3f]);
         var b = CreateVector([4f, 5f, 6f]);
 
-        var result = Vector.Concat(a, b, axis: 'r');
+        var result = a.Concat(b, axis: 'r');
 
         result.SyncCPU();
         result.Length.Should().Be(6);
@@ -47,7 +47,7 @@ public class VectorStructuralTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var a = CreateVector([1f, 2f]);
         var b = CreateVector([3f, 4f]);
 
-        var result = Vector.Append(a, b);
+        var result = a.Append(b);
 
         SyncValues(result).ShouldBeCloseTo([1f, 2f, 3f, 4f]);
     }
@@ -58,7 +58,7 @@ public class VectorStructuralTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var a = CreateVector([1f, 2f]);
         var b = CreateVector([3f, 4f]);
 
-        var result = Vector.Prepend(a, b);
+        var result = a.Prepend(b);
 
         SyncValues(result).ShouldBeCloseTo([3f, 4f, 1f, 2f]);
     }
@@ -69,7 +69,7 @@ public class VectorStructuralTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var a = CreateVector([1f, 2f, 3f]);
         var b = CreateVector([3f, 4f, 5f]);
 
-        var result = Vector.Merge(a, b);
+        var result = a.Merge(b);
 
         result.Length.Should().Be(5);
         SyncValues(result).Should().Contain([1f, 2f, 3f, 4f, 5f]);

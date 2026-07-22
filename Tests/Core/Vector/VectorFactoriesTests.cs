@@ -7,7 +7,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Zeros_CreatesZeroFilledVector()
     {
-        var vector = Vector.Zeros(Gpu, 5);
+        var vector = Zeros(Gpu, 5, 0);
 
         SyncValues(vector).Should().AllBeEquivalentTo(0f);
         vector.Length.Should().Be(5);
@@ -16,7 +16,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Ones_CreatesOneFilledVector()
     {
-        var vector = Vector.Ones(Gpu, 4);
+        var vector = Ones(Gpu, 4);
 
         SyncValues(vector).Should().AllBeEquivalentTo(1f);
     }
@@ -24,7 +24,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Fill_CreatesConstantVector()
     {
-        var vector = Vector.Fill(Gpu, 3.5f, 3);
+        var vector = Fill(Gpu, 3.5f, 3, 0);
 
         SyncValues(vector).Should().AllBeEquivalentTo(3.5f);
     }
@@ -32,7 +32,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Arange_StaticArray_ReturnsExpectedSequence()
     {
-        var values = Vector.Arange(0f, 4f, 1f);
+        var values = Arange(0f, 4f, 1f);
 
         values.Should().HaveCount(4);
         values.ShouldBeCloseTo([0f, 1f, 2f, 3f]);
@@ -41,7 +41,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Arange_NegativeRangeWithPositiveStep_AdjustsStep()
     {
-        var values = Vector.Arange(0f, -4f, 1f);
+        var values = Arange(0f, -4f, 1f);
 
         values.Should().HaveCount(4);
         values.ShouldBeCloseTo([0f, -1f, -2f, -3f]);
@@ -50,7 +50,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Arange_OnGpu_CreatesVector()
     {
-        var vector = Vector.Arange(Gpu, 2f, 8f, 2f);
+        var vector = Arange(Gpu, 2f, 8f, 2f);
 
         SyncValues(vector).ShouldBeCloseTo([2f, 4f, 6f]);
     }
@@ -58,7 +58,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Linspace_StaticArray_ReturnsEvenlySpacedValues()
     {
-        var values = Vector.Linspace(0f, 10f, 5);
+        var values = Linspace(0f, 10f, 5);
 
         values.Should().HaveCount(5);
         values[0].Should().Be(0f);
@@ -68,7 +68,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Linspace_OnGpu_CreatesVector()
     {
-        var vector = Vector.Linspace(Gpu, 0f, 4f, 3);
+        var vector = Linspace(Gpu, 0f, 4f, 3);
 
         SyncValues(vector).ShouldBeCloseTo([0f, 2f, 4f]);
     }

@@ -22,7 +22,7 @@ public class VectorReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
         var expected = RowReduceReference(coeff, matrix, rows, cols, op);
 
-        var result = Vector.ReduceOP(vector, mat, op);
+        var result = vector.ReduceOP(mat, op);
 
         result.Length.Should().Be(rows);
         result.Columns.Should().Be(1);
@@ -35,7 +35,7 @@ public class VectorReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var vector = BavclShape.Create(Gpu, [3], BroadcastReference.SequentialData(3));
         var matrix = BavclShape.Create(Gpu, [2, 4], BroadcastReference.SequentialData(2, 4));
 
-        Action act = () => Vector.ReduceOP(vector, matrix, Operations.add);
+        Action act = () => vector.ReduceOP(matrix, Operations.add);
 
         act.Should().Throw<LengthMismatchException>();
     }
@@ -60,7 +60,7 @@ public class VectorReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var broadcast = coeff + matrix;
         broadcast.Length.Should().Be(6);
 
-        var reduced = Vector.ReduceOP(coeff, matrix, Operations.add);
+        var reduced = coeff.ReduceOP(matrix, Operations.add);
         reduced.Length.Should().Be(2);
     }
 

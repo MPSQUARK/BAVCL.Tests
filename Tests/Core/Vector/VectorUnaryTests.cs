@@ -9,7 +9,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector(VectorFactory.MixedSigns);
 
-        var result = Vector.Abs(vector);
+        var result = vector.Abs();
 
         SyncValues(result).ShouldBeCloseTo(CpuReference.Abs(VectorFactory.MixedSigns));
     }
@@ -19,8 +19,8 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector(VectorFactory.MixedSigns);
 
-        var cpu = SyncValues(Vector.Abs(vector));
-        var gpu = SyncValues(Vector.AbsX(vector));
+        var cpu = SyncValues(vector.Abs());
+        var gpu = SyncValues(vector.AbsX());
 
         cpu.ShouldBeCloseTo(gpu);
     }
@@ -30,7 +30,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector(VectorFactory.Small1D);
 
-        var result = Vector.Reverse(vector);
+        var result = vector.Reverse();
 
         SyncValues(result).ShouldBeCloseTo(CpuReference.Reverse(VectorFactory.Small1D));
     }
@@ -40,8 +40,8 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector(VectorFactory.Small1D);
 
-        var cpu = SyncValues(Vector.Reverse(vector));
-        var gpu = SyncValues(Vector.ReverseX(vector));
+        var cpu = SyncValues(vector.Reverse());
+        var gpu = SyncValues(vector.ReverseX());
 
         cpu.ShouldBeCloseTo(gpu);
     }
@@ -51,7 +51,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([2f, 4f, 5f]);
 
-        var result = Vector.Reciprocal(vector);
+        var result = vector.Reciprocal();
 
         SyncValues(result).ShouldBeCloseTo([0.5f, 0.25f, 0.2f]);
     }
@@ -64,7 +64,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([input]);
 
-        var result = Vector.Rsqrt(vector);
+        var result = vector.Rsqrt();
 
         SyncValues(result)[0].ShouldBeCloseTo(expected, 1e-3f);
     }
@@ -74,7 +74,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([0f]);
 
-        var result = Vector.Rsqrt(vector);
+        var result = vector.Rsqrt();
 
         float.IsPositiveInfinity(SyncValues(result)[0]).Should().BeTrue();
     }
@@ -84,7 +84,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([-4f]);
 
-        var result = Vector.Rsqrt(vector);
+        var result = vector.Rsqrt();
 
         float.IsNaN(SyncValues(result)[0]).Should().BeTrue();
     }
@@ -94,7 +94,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([4f, 0f, -9f, 16f]);
 
-        var result = Vector.Rsqrt(vector);
+        var result = vector.Rsqrt();
         var values = SyncValues(result);
 
         values[0].ShouldBeCloseTo(0.5f, 1e-3f);
@@ -108,8 +108,8 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([4f, 0f, -9f, 16f]);
 
-        var cpu = SyncValues(Vector.Rsqrt(vector));
-        var gpu = SyncValues(Vector.RsqrtX(vector));
+        var cpu = SyncValues(vector.Rsqrt());
+        var gpu = SyncValues(vector.RsqrtX());
 
         cpu.ShouldBeCloseTo(gpu);
     }
@@ -119,7 +119,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([1f, 3f, 6f, 10f]);
 
-        var result = Vector.Diff(vector);
+        var result = vector.Diff();
 
         SyncValues(result).ShouldBeCloseTo([2f, 3f, 4f]);
     }
@@ -129,7 +129,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector(VectorFactory.EdgeNaNInf);
 
-        var result = Vector.Nan_to_num(vector, -1f);
+        var result = vector.Nan_to_num(-1f);
 
         SyncValues(result).ShouldBeCloseTo([-1f, -1f, -1f, 0f]);
     }

@@ -12,7 +12,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [1f, 0f, 0f]);
         var b = new Vector3(Gpu, [0f, 1f, 0f]);
 
-        var result = Vector3.Cross(a, b);
+        var result = a.Cross(b);
 
         result.SyncCPU();
         result.Value.ShouldBeCloseTo([0f, 0f, 1f]);
@@ -23,7 +23,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vec = new Vector3(Gpu, [3f, 4f, 0f]);
 
-        var magnitudes = Vector3.Magnitude(vec);
+        var magnitudes = vec.Magnitude();
 
         magnitudes.SyncCPU();
         magnitudes.Value[0].ShouldBeCloseTo(5f);
@@ -35,7 +35,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [0f, 0f, 0f]);
         var b = new Vector3(Gpu, [3f, 4f, 0f]);
 
-        var distances = Vector3.Distance(a, b);
+        var distances = a.Distance(b);
 
         distances.SyncCPU();
         distances.Value[0].ShouldBeCloseTo(5f);
@@ -47,7 +47,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [1f, 2f, 3f]);
         var b = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f]);
 
-        var act = () => Vector3.Magnitude(a, b);
+        var act = () => a.Magnitude(b);
 
         act.Should().Throw<LengthMismatchException>()
             .WithMessage("*Magnitude*");
@@ -59,7 +59,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [1f, 2f, 3f]);
         var b = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
 
-        var act = () => Vector3.Distance(a, b);
+        var act = () => a.Distance(b);
 
         act.Should().Throw<LengthMismatchException>()
             .WithMessage("*Distance*");

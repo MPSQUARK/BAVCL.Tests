@@ -26,7 +26,7 @@ public class Vector3ConstructionTests(GpuTestFixture fixture) : GpuTestBase(fixt
     [Fact]
     public void Zeros_CreatesZeroFilledVector3()
     {
-        var vec3 = Vector3.Zeros(Gpu, 6);
+        var vec3 = Zeros(Gpu, 6);
 
         vec3.Length.Should().Be(6);
         vec3.SyncCPU();
@@ -36,7 +36,7 @@ public class Vector3ConstructionTests(GpuTestFixture fixture) : GpuTestBase(fixt
     [Fact]
     public void Fill_CreatesConstantVector3()
     {
-        var vec3 = Vector3.Fill(Gpu, 2.5f, 6);
+        var vec3 = Fill(Gpu, 2.5f, 6);
 
         vec3.SyncCPU();
         vec3.Value.Should().AllBeEquivalentTo(2.5f);

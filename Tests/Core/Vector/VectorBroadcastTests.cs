@@ -32,7 +32,7 @@ public class VectorBroadcastTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var outShape = BavclShape.BroadcastOutputShape(shapeA, shapeB);
         var expected = BroadcastReference.Add(dataA, shapeA, dataB, shapeB);
 
-        var result = Vector.OP(a, b, Operations.add);
+        var result = a.OP(b, Operations.add);
 
         BavclShape.ShouldMatchNumpyShape(result, outShape, expected);
     }

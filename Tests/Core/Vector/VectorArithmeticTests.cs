@@ -10,7 +10,7 @@ public class VectorArithmeticTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var vector = CreateVector(VectorFactory.MixedSigns);
 
         var result = +vector;
-        var expected = SyncValues(Vector.AbsX(vector));
+        var expected = SyncValues(vector.AbsX());
 
         SyncValues(result).ShouldBeCloseTo(expected);
     }

@@ -1,5 +1,5 @@
-using BAVCL.Ext;
-using BAVCL.Extensions;
+using BAVCL.Modules.Arithmetic;
+using BAVCL.Modules.Statistics;
 
 namespace BAVCL.Tests.Extensions;
 

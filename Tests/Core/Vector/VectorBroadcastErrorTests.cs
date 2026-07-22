@@ -28,7 +28,7 @@ public class VectorBroadcastErrorTests(GpuTestFixture fixture) : GpuTestBase(fix
         var a = BavclShape.Create(Gpu, shapeA, dataA);
         var b = BavclShape.Create(Gpu, shapeB, dataB);
 
-        Action act = () => _ = Vector.OP(a, b, Operations.add);
+        Action act = () => _ = a.OP(b, Operations.add);
 
         act.Should().Throw<ShapeMismatchException>();
     }

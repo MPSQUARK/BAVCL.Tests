@@ -18,7 +18,7 @@ public class VectorDotProductTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var vectorA = CreateVector(a);
         var vectorB = CreateVector(b);
 
-        Vector.Dot(vectorA, vectorB).ShouldBeCloseTo(expected);
+        vectorA.Dot(vectorB).ShouldBeCloseTo(expected);
         vectorA.Dot(vectorB).ShouldBeCloseTo(expected);
         expected.ShouldBeCloseTo(BroadcastReference.InnerProduct(a, b));
     }
@@ -32,7 +32,7 @@ public class VectorDotProductTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var vector = CreateVector(data);
         float expected = data.Sum() * scalar;
 
-        Vector.Dot(vector, scalar).ShouldBeCloseTo(expected);
+        vector.Dot(scalar).ShouldBeCloseTo(expected);
         vector.Dot(scalar).ShouldBeCloseTo(expected);
     }
 
@@ -45,7 +45,7 @@ public class VectorDotProductTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var a = BavclShape.Create(Gpu, [2, 3], aData);
         var b = BavclShape.Create(Gpu, [2, 3], bData);
 
-        float result = Vector.Dot(a, b);
+        float result = a.Dot(b);
 
         result.ShouldBeCloseTo(BroadcastReference.InnerProduct(aData, bData));
     }
@@ -80,7 +80,7 @@ public class VectorDotProductTests(GpuTestFixture fixture) : GpuTestBase(fixture
 
         var vectorA = CreateVector(a);
         var vectorB = CreateVector(b);
-        Action bavcl = () => _ = Vector.Dot(vectorA, vectorB);
+        Action bavcl = () => _ = vectorA.Dot(vectorB);
         bavcl.Should().Throw<LengthMismatchException>();
     }
 }

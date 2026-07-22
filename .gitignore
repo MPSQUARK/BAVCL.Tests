@@ -5,3 +5,7 @@ obj
 obj/*
 .vs/**/*
 obj/Debug/net6.0/BAVCL.Tests.GeneratedMSBuildEditorConfig.editorconfig
+
+# Benchmark runs: keep markdown reports only
+BAVCL.Benchmarks/BaselineResults/**
+!BAVCL.Benchmarks/BaselineResults/**/*.md

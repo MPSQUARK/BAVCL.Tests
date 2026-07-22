@@ -10,7 +10,7 @@ public class VectorAllTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var vector = CreateVector([1f, 2f, 3f]);
 
         vector.All().Should().BeTrue();
-        Vector.All(vector).Should().BeTrue();
+        vector.All().Should().BeTrue();
     }
 
     [Fact]

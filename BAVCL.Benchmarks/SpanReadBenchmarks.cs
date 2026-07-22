@@ -34,15 +34,15 @@ public class SpanReadBenchmarks
         return vector;
     }
 
-    [Benchmark] public float GetReadOnlySpan_1K() => Sum(_vector1K.GetReadOnlySpan());
+    [Benchmark] public float RetrieveReadOnlySpan_1K() => Sum(_vector1K.RetrieveReadOnlySpan());
     [Benchmark] public float GetCpuReadOnlySpan_1K() => Sum(_vector1K.GetCpuReadOnlySpan());
     [Benchmark] public float ToArray_1K() => Sum(_vector1K.ToArray());
 
-    [Benchmark] public float GetReadOnlySpan_100K() => Sum(_vector100K.GetReadOnlySpan());
+    [Benchmark] public float RetrieveReadOnlySpan_100K() => Sum(_vector100K.RetrieveReadOnlySpan());
     [Benchmark] public float GetCpuReadOnlySpan_100K() => Sum(_vector100K.GetCpuReadOnlySpan());
     [Benchmark] public float ToArray_100K() => Sum(_vector100K.ToArray());
 
-    [Benchmark] public float GetReadOnlySpan_1M() => Sum(_vector1M.GetReadOnlySpan());
+    [Benchmark] public float RetrieveReadOnlySpan_1M() => Sum(_vector1M.RetrieveReadOnlySpan());
     [Benchmark] public float GetCpuReadOnlySpan_1M() => Sum(_vector1M.GetCpuReadOnlySpan());
     [Benchmark] public float ToArray_1M() => Sum(_vector1M.ToArray());
 

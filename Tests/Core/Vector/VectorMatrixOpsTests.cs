@@ -29,10 +29,10 @@ public class VectorMatrixOpsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
         Vector result = op switch
         {
-            Operations.add => Vector.MatrixAdd(a, b),
-            Operations.subtract => Vector.MatrixSubtract(a, b),
-            Operations.divide => Vector.MatrixDivide(a, b),
-            Operations.pow => Vector.MatrixPow(a, b),
+            Operations.add => a.MatrixAdd(b),
+            Operations.subtract => a.MatrixSubtract(b),
+            Operations.divide => a.MatrixDivide(b),
+            Operations.pow => a.MatrixPow(b),
             _ => throw new ArgumentOutOfRangeException(nameof(op))
         };
 
@@ -45,7 +45,7 @@ public class VectorMatrixOpsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = BavclShape.Create(Gpu, [2, 3], BroadcastReference.SequentialData(2, 3));
         var b = BavclShape.Create(Gpu, [3, 2], BroadcastReference.SequentialData(3, 2));
 
-        Action act = () => Vector.MatrixAdd(a, b);
+        Action act = () => a.MatrixAdd(b);
 
         act.Should().Throw<ShapeMismatchException>();
     }
@@ -59,8 +59,8 @@ public class VectorMatrixOpsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
             BroadcastReference.SequentialData(2, 3, 1f, 1f), 2, 3,
             BroadcastReference.SequentialData(3, 2, 2f, 0.5f), 3, 2);
 
-        var cross = Vector.Cross(a, b);
-        var matmul = Vector.MatrixMultiply(a, b);
+        var cross = a.Cross(b);
+        var matmul = a.MatrixMultiply(b);
 
         BavclShape.ShouldMatchNumpyShape(cross, [2, 2], expected);
         BavclShape.ShouldMatchNumpyShape(matmul, [2, 2], expected);
@@ -72,7 +72,7 @@ public class VectorMatrixOpsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var vector = BavclShape.Create(Gpu, [3], BroadcastReference.SequentialData(3));
         var matrix = BavclShape.Create(Gpu, [2, 3], BroadcastReference.SequentialData(2, 3));
 
-        Action act = () => Vector.MatrixAdd(vector, matrix);
+        Action act = () => vector.MatrixAdd(matrix);
 
         act.Should().Throw<ShapeMismatchException>();
     }
