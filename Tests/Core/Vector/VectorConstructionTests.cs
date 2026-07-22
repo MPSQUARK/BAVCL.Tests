@@ -1,5 +1,3 @@
-using BAVCL.Core;
-using BAVCL.Geometric;
 using BAVCL.Tests.Helpers;
 
 namespace BAVCL.Tests.Core.VectorTests;

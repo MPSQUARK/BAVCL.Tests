@@ -1,5 +1,3 @@
-using BAVCL.Core;
-
 namespace BAVCL.Tests.Helpers;
 
 /// <summary>

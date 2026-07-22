@@ -1,5 +1,4 @@
 using BAVCL.Geometric;
-using BAVCL.Geometric.Enums;
 using BAVCL.Tests.Helpers;
 
 namespace BAVCL.Tests.Geometric.Vector3Tests;

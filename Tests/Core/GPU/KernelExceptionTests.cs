@@ -1,7 +1,5 @@
 using BAVCL.Core.Exceptions;
 using BAVCL.Tests.Helpers;
-using ILGPU;
-using ILGPU.Runtime;
 
 namespace BAVCL.Tests.Core.GPU;
 

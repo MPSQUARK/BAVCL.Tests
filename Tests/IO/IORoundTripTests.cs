@@ -1,4 +1,3 @@
-using BAVCL.IO;
 using BAVCL.Tests.Helpers;
 
 namespace BAVCL.Tests.IOTests;

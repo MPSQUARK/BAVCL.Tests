@@ -1,6 +1,3 @@
-using BAVCL.Modules.Arithmetic;
-using BAVCL.Modules.Statistics;
-
 namespace BAVCL.Tests.Extensions;
 
 public class ArrayExtensionsTests

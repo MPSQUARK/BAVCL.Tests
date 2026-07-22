@@ -1,6 +1,5 @@
 using BAVCL.Geometric;
 using BAVCL.Tests.Helpers;
-using BAVCL.Utility;
 
 namespace BAVCL.Tests.Geometric;
 

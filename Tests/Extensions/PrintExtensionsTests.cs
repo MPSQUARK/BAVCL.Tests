@@ -1,5 +1,3 @@
-using BAVCL.Core;
-
 namespace BAVCL.Tests.Extensions;
 
 public class PrintExtensionsTests

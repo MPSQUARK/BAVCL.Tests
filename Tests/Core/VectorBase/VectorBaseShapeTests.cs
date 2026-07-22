@@ -1,4 +1,3 @@
-using BAVCL.Core;
 using BAVCL.Tests.Helpers;
 
 namespace BAVCL.Tests.Core.VectorBase;
