@@ -1,4 +1,4 @@
-using BAVCL.Utility;
+using BAVCL.Core;
 
 namespace BAVCL.Tests.Utility;
 

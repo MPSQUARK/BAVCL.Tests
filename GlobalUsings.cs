@@ -3,5 +3,6 @@ global using BAVCL.Modules.Arithmetic;
 global using BAVCL.Modules.Geometric;
 global using BAVCL.Modules.GpuOps;
 global using BAVCL.Modules.Statistics;
-global using BAVCL.Modules.Structural;
+global using BAVCL.Modules.Masking;
+global using BAVCL.Types;
 global using static BAVCL.Modules.Structural.VectorStructural;
