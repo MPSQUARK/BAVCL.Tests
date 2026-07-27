@@ -9,7 +9,7 @@ public class IOFormatTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([1f, 2f, 3f]);
 
-        var text = BAVCL.IO.IO.ToFileFormat(vector, "txt");
+        var text = IO.ToFileFormat(vector, "txt");
 
         text.Should().Contain("1");
         text.Should().Contain("2");
@@ -20,7 +20,7 @@ public class IOFormatTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([1f, 2f, 3f]);
 
-        var csv = BAVCL.IO.IO.ToFileFormat(vector, "csv");
+        var csv = IO.ToFileFormat(vector, "csv");
 
         csv.Should().Contain("1,");
         csv.Should().Contain("2,");
@@ -31,7 +31,7 @@ public class IOFormatTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([1f, 2f, 3f]);
 
-        var act = () => BAVCL.IO.IO.ToFileFormat(vector, "xml");
+        var act = () => IO.ToFileFormat(vector, "xml");
 
         act.Should().Throw<Exception>().WithMessage("*No format*");
     }

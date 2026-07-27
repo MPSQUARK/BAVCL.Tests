@@ -42,7 +42,7 @@ public class VectorSyncCoherenceTests(GpuTestFixture fixture) : GpuTestBase(fixt
         vector.UpdateCache();
 
         vector.ID.Should().Be(idBefore);
-        vector.Residence.Should().Be(Residence.InSync);
+        ShouldBeInSyncWithValues(vector, [1f, 2f, 3f]);
     }
 
     [Fact]

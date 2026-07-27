@@ -39,7 +39,8 @@ public class ScopeTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		}
 
 		vector.Residence.Should().Be(Residence.InSync);
-		vector.RetrieveReadOnlySpan()[0].Should().Be(99f);
+		vector.Value.ShouldBeCloseTo([99f, 2f, 3f]);
+		vector.Pull().ShouldBeCloseTo([99f, 2f, 3f]);
 	}
 
 	[Fact]

@@ -12,9 +12,9 @@ public class IORoundTripTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         {
             var original = CreateVector([1f, 2f, 3f, 4f, 5f]);
 
-            BAVCL.IO.IO.WriteToFile(original, "vector", "csv", tempDir);
+            IO.WriteToFile(original, "vector", "csv", tempDir);
 
-            var loaded = BAVCL.IO.IO.CSV2Vector(Gpu, "vector", "csv", tempDir);
+            var loaded = IO.CSV2Vector(Gpu, "vector", "csv", tempDir);
 
             SyncValues(loaded).ShouldBeCloseTo(SyncValues(original));
         }
@@ -30,7 +30,7 @@ public class IORoundTripTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var tempDir = TempFileHelper.CreateTempDirectory();
         try
         {
-            BAVCL.IO.IO.WriteToFile("hello world", "test", "txt", tempDir);
+            IO.WriteToFile("hello world", "test", "txt", tempDir);
 
             var path = Path.Combine(tempDir, "saved_data", "test.txt");
             File.ReadAllText(path).Should().Be("hello world");

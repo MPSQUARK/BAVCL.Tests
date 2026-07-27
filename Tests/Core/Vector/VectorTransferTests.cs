@@ -15,8 +15,8 @@ public class VectorTransferTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
         target.ID.Should().Be(originalId);
         temp.ID.Should().Be(0);
-        target.Residence.Should().Be(Residence.InSync);
+        ShouldBeInSyncWithValues(target, [9f, 8f, 7f]);
         temp.Residence.Should().Be(Residence.Cpu);
-        SyncValues(target).ShouldBeCloseTo([9f, 8f, 7f]);
+        temp.Value.ShouldBeCloseTo([9f, 8f, 7f]);
     }
 }
