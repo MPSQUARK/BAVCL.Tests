@@ -24,8 +24,12 @@ public class OperationsEnumTests
     }
 
     [Fact]
-    public void FileTypes_ContainsCsvAndTxt()
+    public void IoFormatters_ExposeSingletonDefault()
     {
-        Enum.GetNames<FileTypes>().Should().Contain(nameof(FileTypes.CSV), nameof(FileTypes.TXT));
+        typeof(IFormatter<Vector>).IsAssignableFrom(typeof(JsonFormatter)).Should().BeTrue();
+        JsonFormatter.Default.Should().BeSameAs(JsonFormatter.Default);
+        JsonFormatter.Default.Extension.Should().Be(".json");
+        CsvFormatter.Default.Extension.Should().Be(".csv");
+        TxtFormatter.Default.Extension.Should().Be(".txt");
     }
 }

@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
+    <!-- IO tests (Category=IO) skipped by default. Enable with IncludeIOTests=true and filter Category=IO -->
+    <VSTestTestCaseFilter Condition="'$(IncludeIOTests)' != 'true'">Category!=IO</VSTestTestCaseFilter>
   </PropertyGroup>
 
   <ItemGroup>
