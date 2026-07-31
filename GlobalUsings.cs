@@ -1,5 +1,6 @@
 global using BAVCL.Core;
 global using BAVCL.Modules.Arithmetic;
+global using BAVCL.Modules.Generators;
 global using BAVCL.Modules.Geometric;
 global using BAVCL.Modules.GpuOps;
 global using BAVCL.Modules.IO;
