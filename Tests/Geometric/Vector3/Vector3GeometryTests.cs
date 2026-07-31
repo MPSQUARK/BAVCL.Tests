@@ -42,6 +42,68 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     }
 
     [Fact]
+    public void Dot_OrthogonalVectors_ReturnsZero()
+    {
+        var a = new Vector3(Gpu, [1f, 0f, 0f]);
+        var b = new Vector3(Gpu, [0f, 1f, 0f]);
+
+        var result = a.Dot(b);
+
+        result.SyncCPU();
+        result.Value[0].ShouldBeCloseTo(0f);
+    }
+
+    [Fact]
+    public void Dot_SameVector_ReturnsMagnitudeSquared()
+    {
+        var vec = new Vector3(Gpu, [3f, 4f, 0f]);
+
+        var result = vec.Dot(vec);
+
+        result.SyncCPU();
+        result.Value[0].ShouldBeCloseTo(25f);
+    }
+
+    [Fact]
+    public void Dot_Batch_ReturnsPerRowScalars()
+    {
+        var a = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
+        var b = new Vector3(Gpu, [7f, 8f, 9f, 1f, 0f, 0f]);
+
+        var result = a.Dot(b);
+
+        result.SyncCPU();
+        result.Value[0].ShouldBeCloseTo(50f);
+        result.Value[1].ShouldBeCloseTo(4f);
+    }
+
+    [Fact]
+    public void Dot_DifferentLengths_ThrowsLengthMismatchException()
+    {
+        var a = new Vector3(Gpu, [1f, 2f, 3f]);
+        var b = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
+
+        var act = () => a.Dot(b);
+
+        act.Should().Throw<LengthMismatchException>()
+            .WithMessage("*Dot*");
+    }
+
+    [Fact]
+    public void Dot_StaticAndInstance_ReturnEqualResults()
+    {
+        var a = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
+        var b = new Vector3(Gpu, [7f, 8f, 9f, 1f, 0f, 0f]);
+
+        var staticResult = Vector3.Dot(a, b);
+        var instanceResult = a.Dot(b);
+
+        staticResult.SyncCPU();
+        instanceResult.SyncCPU();
+        staticResult.Value.ShouldBeCloseTo(instanceResult.Value);
+    }
+
+    [Fact]
     public void Magnitude_DifferentLengths_ThrowsLengthMismatchException()
     {
         var a = new Vector3(Gpu, [1f, 2f, 3f]);

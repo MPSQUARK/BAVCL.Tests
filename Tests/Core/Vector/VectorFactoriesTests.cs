@@ -32,7 +32,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Arange_StaticArray_ReturnsExpectedSequence()
     {
-        var values = Arange(0f, 4f, 1f);
+        var values = GeneratorsModule.Arange(0f, 4f, 1f);
 
         values.Should().HaveCount(4);
         values.ShouldBeCloseTo([0f, 1f, 2f, 3f]);
@@ -41,7 +41,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Arange_NegativeRangeWithPositiveStep_AdjustsStep()
     {
-        var values = Arange(0f, -4f, 1f);
+        var values = GeneratorsModule.Arange(0f, -4f, 1f);
 
         values.Should().HaveCount(4);
         values.ShouldBeCloseTo([0f, -1f, -2f, -3f]);
@@ -58,7 +58,7 @@ public class VectorFactoriesTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Linspace_StaticArray_ReturnsEvenlySpacedValues()
     {
-        var values = Linspace(0f, 10f, 5);
+        var values = GeneratorsModule.Linspace(0f, 10f, 5);
 
         values.Should().HaveCount(5);
         values[0].Should().Be(0f);
