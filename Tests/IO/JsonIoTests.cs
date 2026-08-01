@@ -1,3 +1,4 @@
+using System.Text.Json;
 using BAVCL.Geometric;
 using BAVCL.Modules.IO.Enums;
 using BAVCL.Tests.Helpers;
@@ -27,7 +28,7 @@ public class JsonIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 			loaded.Columns.Should().Be(2);
 			SyncValues(loaded).ShouldBeCloseTo([1f, 2f, 3f, 4f]);
 			json.Should().Contain("\"type\":\"Vector\"");
-			json.Should().Contain("\"dtype\":\"float32\"");
+			json.Should().Contain("\"dtype\":\"Single\"");
 			json.Should().Contain("\"schemaVersion\":1");
 		}
 		finally
@@ -131,7 +132,7 @@ public class JsonIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 			loaded.Columns.Should().Be(2);
 			SyncMaskBits(loaded).Should().Equal(true, false, true, true);
 			json.Should().Contain("\"count\":4");
-			json.Should().Contain("\"dtype\":\"int32\"");
+			json.Should().Contain("\"dtype\":\"Int32\"");
 		}
 		finally
 		{
@@ -154,7 +155,7 @@ public class JsonIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 			loaded.ElementCount.Should().Be(3);
 			loaded.Columns.Should().Be(0);
 			SyncMaskBits(loaded).Should().Equal(false, true, false);
-			json.Should().Contain("\"dtype\":\"bool\"");
+			json.Should().Contain("\"dtype\":\"Boolean\"");
 			json.Should().NotContain("\"count\"");
 		}
 		finally
@@ -169,7 +170,7 @@ public class JsonIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		string dir = TempFileHelper.CreateTempDirectory();
 		try
 		{
-			const string json = """{"schemaVersion":1,"type":"Mask","dtype":"int32","columns":0,"count":33,"data":[1]}""";
+			const string json = """{"schemaVersion":1,"type":"Mask","dtype":"Int32","columns":0,"count":33,"data":[1]}""";
 
 			IO.CreateWriter<Mask, JsonFormatter>("bad", dir).WriteRaw(json);
 
@@ -181,5 +182,26 @@ public class JsonIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		{
 			TempFileHelper.Cleanup(dir);
 		}
+	}
+
+	[Fact]
+	public void Vector3_InvalidColumns_Throws()
+	{
+		const string json = """{"schemaVersion":1,"type":"Vector3","dtype":"Single","columns":2,"data":[1,2,3,4,5,6]}""";
+
+		var act = () => ((IFormatter<Vector3>)JsonFormatter.Default).Deserialize(Gpu, json);
+
+		act.Should().Throw<JsonException>().WithMessage("*columns*must be 3*");
+	}
+
+	[Fact]
+	public void Mask_Bool_RoutesOnDtype_NotCountHeuristic()
+	{
+		const string json = """{"schemaVersion":1,"type":"Mask","dtype":"Boolean","columns":0,"count":99,"data":[true,false,true]}""";
+
+		var loaded = ((IFormatter<Mask>)JsonFormatter.Default).Deserialize(Gpu, json);
+
+		loaded.ElementCount.Should().Be(3);
+		SyncMaskBits(loaded).Should().Equal(true, false, true);
 	}
 }
