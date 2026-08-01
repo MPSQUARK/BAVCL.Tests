@@ -170,7 +170,7 @@ public class JsonIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		string dir = TempFileHelper.CreateTempDirectory();
 		try
 		{
-			const string json = """[{"schemaVersion":1,"type":"Mask","dtype":"Int32","columns":0,"count":33,"data":[1]}]""";
+			const string json = """{"schemaVersion":1,"items":[{"type":"Mask","dtype":"Int32","columns":0,"count":33,"data":[1]}]}""";
 
 			IO.CreateWriter<Mask, JsonFormatter>("bad", dir).WriteRaw(json);
 

@@ -34,7 +34,7 @@ public class MultiDocumentIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 			SyncValues(loaded[2]).ShouldBeCloseTo([5f, 6f]);
 
 			string csv = File.ReadAllText(Path.Combine(dir, "vectors.csv"));
-			csv.Split('\n').Should().HaveCount(4); // header + 3 rows
+			csv.Split('\n').Should().HaveCount(5); // schema line + header + 3 rows
 		}
 		finally
 		{
@@ -56,7 +56,8 @@ public class MultiDocumentIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 			}
 
 			string json = File.ReadAllText(Path.Combine(dir, "vectors.json"));
-			json.Should().StartWith("[").And.EndWith("]");
+			json.Should().StartWith("{\"schemaVersion\":1,\"items\":[").And.EndWith("]}");
+			json.Should().NotContain("\"schemaVersion\":1,\"type\"");
 
 			IReadOnlyList<Vector> loaded = IO.DeserializeAll<Vector, JsonFormatter>(Gpu, "vectors", dir);
 
@@ -83,7 +84,8 @@ public class MultiDocumentIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 			}
 
 			string xml = File.ReadAllText(Path.Combine(dir, "vectors.xml"));
-			xml.Should().StartWith("<root>").And.EndWith("</root>");
+			xml.Should().StartWith("<root schemaVersion=\"1\">").And.EndWith("</root>");
+			xml.Should().NotContain("<vector type=");
 
 			IReadOnlyList<Vector> loaded = IO.DeserializeAll<Vector, XmlFormatter>(Gpu, "vectors", dir);
 

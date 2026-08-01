@@ -72,7 +72,7 @@ public class IoFileTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
 			var loaded = IO.Deserialize<Vector, CsvFormatter>(Gpu, "vector", dir);
 			string csv = File.ReadAllText(Path.Combine(dir, "vector.csv"));
-			csv.Should().StartWith("schemaVersion,type,dtype,columns,data");
+			csv.Should().StartWith("schemaVersion,1\ntype,dtype,columns,data");
 			SyncValues(loaded).ShouldBeCloseTo(SyncValues(original));
 		}
 		finally
@@ -94,8 +94,8 @@ public class IoFileTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 			IO.Serialize<Mask, CsvFormatter>(mask, "mask", dir, flags: MaskSerializeFlags.Bool);
 			IO.Serialize<Mask, CsvFormatter>(mask, "mask-packed", dir, flags: MaskSerializeFlags.Packed);
 
-			File.ReadAllText(Path.Combine(dir, "mask.csv")).Should().Contain(",Mask,Boolean,");
-			File.ReadAllText(Path.Combine(dir, "mask-packed.csv")).Should().Contain("schemaVersion,type,dtype,columns,count,data");
+			File.ReadAllText(Path.Combine(dir, "mask.csv")).Should().Contain("Mask,Boolean,");
+			File.ReadAllText(Path.Combine(dir, "mask-packed.csv")).Should().StartWith("schemaVersion,1\ntype,dtype,columns,count,data");
 
 			IO.Deserialize<Vector3, CsvFormatter>(Gpu, "v3", dir).ToArray()
 				.ShouldBeCloseTo([1f, 0f, 0f, 0f, 1f, 0f]);

@@ -23,7 +23,8 @@ public class XmlIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
 			loaded.Columns.Should().Be(2);
 			SyncValues(loaded).ShouldBeCloseTo([1f, 2f, 3f, 4f]);
-			xml.Should().Contain("type=\"Vector\"");
+			xml.Should().Contain("<vector ");
+			xml.Should().NotContain("type=\"Vector\"");
 			xml.Should().Contain("dtype=\"Single\"");
 			xml.Should().Contain("schemaVersion=\"1\"");
 		}
@@ -92,7 +93,7 @@ public class XmlIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 	[Fact]
 	public void Mask_Packed_InvalidWordCount_Throws()
 	{
-		const string xml = """<mask schemaVersion="1" type="Mask" dtype="Int32" columns="0" count="33"><data>1</data></mask>""";
+		const string xml = """<mask schemaVersion="1" dtype="Int32" columns="0" count="33"><data>1</data></mask>""";
 
 		var act = () => ((IFormatter<Mask>)XmlFormatter.Default).Deserialize(Gpu, xml);
 
@@ -115,7 +116,7 @@ public class XmlIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 	[Fact]
 	public void Mask_Bool_RoutesOnDtype_NotCountHeuristic()
 	{
-		const string xml = """<mask schemaVersion="1" type="Mask" dtype="Boolean" columns="0" count="99"><data>true</data><data>false</data><data>true</data></mask>""";
+		const string xml = """<mask schemaVersion="1" dtype="Boolean" columns="0" count="99"><data>true</data><data>false</data><data>true</data></mask>""";
 
 		var loaded = ((IFormatter<Mask>)XmlFormatter.Default).Deserialize(Gpu, xml);
 
