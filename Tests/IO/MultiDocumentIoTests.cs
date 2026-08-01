@@ -34,7 +34,7 @@ public class MultiDocumentIoTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 			SyncValues(loaded[2]).ShouldBeCloseTo([5f, 6f]);
 
 			string csv = File.ReadAllText(Path.Combine(dir, "vectors.csv"));
-			csv.Split('\n').Should().HaveCount(5); // schema line + header + 3 rows
+			csv.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Should().HaveCount(5); // schema line + header + 3 rows
 		}
 		finally
 		{

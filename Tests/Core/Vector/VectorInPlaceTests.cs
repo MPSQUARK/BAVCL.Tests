@@ -7,7 +7,7 @@ public class VectorInPlaceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Abs_IP_MutatesInPlace()
     {
-        var vector = CreateVector(VectorFactory.MixedSigns);
+        var vector = CreateVector([.. VectorFactory.MixedSigns]);
 
         vector.Abs_IP();
         vector.SyncCPU();

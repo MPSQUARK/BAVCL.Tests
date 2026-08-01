@@ -26,4 +26,9 @@ public abstract class GpuTestBase : IClassFixture<GpuTestFixture>
         new(Gpu, values, columns, cache);
 
     protected static bool[] SyncMaskBits(Mask mask) => mask.ToBoolArray();
+
+    protected VectorInt CreateVectorInt(int[] values, int columns = 0, bool cache = true) =>
+        new(Gpu, values, columns, cache);
+
+    protected static int[] SyncValues(VectorInt vector) => vector.ToArray();
 }

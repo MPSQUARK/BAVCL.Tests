@@ -28,7 +28,7 @@ public class VectorIndexingTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void SetAt_UpdatesValue()
     {
-        var vector = CreateVector(VectorFactory.Small1D);
+        var vector = CreateVector([.. VectorFactory.Small1D]);
 
         using (var scope = vector.CpuScopeAndSync())
         {

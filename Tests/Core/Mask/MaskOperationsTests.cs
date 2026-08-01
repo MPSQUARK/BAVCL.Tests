@@ -65,27 +65,27 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 	}
 
 	[Fact]
-	public void VectorFilter_AndOperator()
+	public void VectorMask_AndOperator()
 	{
 		Vector vector = CreateVector([1f, 2f, 3f, 4f]);
 		Mask mask = CreateMask([true, false, true, false]);
 
-		float[] filtered = SyncValues(vector & mask);
-		filtered.Should().Equal([1f, 0f, 3f, 0f]);
+		float[] masked = SyncValues(vector & mask);
+		masked.Should().Equal([1f, 0f, 3f, 0f]);
 
-		float[] custom = SyncValues(vector.Filter(mask, -1f));
+		float[] custom = SyncValues(vector & (mask, -1f));
 		custom.Should().Equal([1f, -1f, 3f, -1f]);
 	}
 
 	[Fact]
-	public void VectorSelect_OperatorAndIndexer()
+	public void VectorFilter_OperatorAndIndexer()
 	{
 		Vector vector = CreateVector([10f, 20f, 30f, 40f]);
 		Mask mask = CreateMask([true, false, true, false]);
 
-		float[] viaOp = SyncValues(vector << mask);
+		float[] viaOp = SyncValues(vector | mask);
 		float[] viaIndexer = SyncValues(vector[mask]);
-		float[] viaMethod = SyncValues(vector.Select(mask));
+		float[] viaMethod = SyncValues(vector.Filter(mask));
 
 		viaOp.Should().Equal([10f, 30f]);
 		viaIndexer.Should().Equal([10f, 30f]);
@@ -94,14 +94,77 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 	}
 
 	[Fact]
-	public void VectorSelect_EmptyMask_ReturnsZeroLength()
+	public void VectorPartition_SplitsLanes()
+	{
+		Vector vector = CreateVector([1f, 2f, 3f, 4f]);
+		Mask mask = CreateMask([true, false, true, false]);
+
+		(Vector trueLanes, Vector falseLanes) = vector / mask;
+
+		SyncValues(trueLanes).Should().Equal([1f, 3f]);
+		SyncValues(falseLanes).Should().Equal([2f, 4f]);
+	}
+
+	[Fact]
+	public void VectorPartition_ExtensionMethod_MatchesOperator()
+	{
+		Vector vector = CreateVector([1f, 2f, 3f, 4f]);
+		Mask mask = CreateMask([true, false, true, false]);
+
+		(Vector opTrue, Vector opFalse) = vector / mask;
+		(Vector methodTrue, Vector methodFalse) = vector.Partition(mask);
+
+		SyncValues(methodTrue).ShouldBeCloseTo(SyncValues(opTrue));
+		SyncValues(methodFalse).ShouldBeCloseTo(SyncValues(opFalse));
+	}
+
+	[Fact]
+	public void VectorPartition_AllTrue_ReturnsFullVectorAndEmptyFalseLanes()
+	{
+		Vector vector = CreateVector([1f, 2f, 3f]);
+		Mask mask = CreateMask([true, true, true]);
+
+		(Vector trueLanes, Vector falseLanes) = vector.Partition(mask);
+
+		SyncValues(trueLanes).ShouldBeCloseTo([1f, 2f, 3f]);
+		falseLanes.Length.Should().Be(0);
+		falseLanes.Columns.Should().Be(0);
+	}
+
+	[Fact]
+	public void VectorPartition_AllFalse_ReturnsEmptyTrueLanesAndFullFalseVector()
 	{
 		Vector vector = CreateVector([1f, 2f, 3f]);
 		Mask mask = CreateMask([false, false, false]);
 
-		Vector selected = vector << mask;
-		selected.Length.Should().Be(0);
-		selected.Columns.Should().Be(0);
+		(Vector trueLanes, Vector falseLanes) = vector.Partition(mask);
+
+		trueLanes.Length.Should().Be(0);
+		trueLanes.Columns.Should().Be(0);
+		SyncValues(falseLanes).ShouldBeCloseTo([1f, 2f, 3f]);
+	}
+
+	[Fact]
+	public void VectorPartition_2D_BroadcastMask_SplitsInRowMajorOrder()
+	{
+		Vector vector = CreateVector([1f, 2f, 3f, 4f], columns: 2);
+		Mask mask = CreateMask([true, false], columns: 0);
+
+		(Vector trueLanes, Vector falseLanes) = vector.Partition(mask);
+
+		SyncValues(trueLanes).ShouldBeCloseTo([1f, 3f]);
+		SyncValues(falseLanes).ShouldBeCloseTo([2f, 4f]);
+	}
+
+	[Fact]
+	public void VectorFilter_EmptyMask_ReturnsZeroLength()
+	{
+		Vector vector = CreateVector([1f, 2f, 3f]);
+		Mask mask = CreateMask([false, false, false]);
+
+		Vector filtered = vector | mask;
+		filtered.Length.Should().Be(0);
+		filtered.Columns.Should().Be(0);
 	}
 
 	[Fact]
@@ -124,13 +187,13 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 	}
 
 	[Fact]
-	public void VectorFilter_Broadcast_1DMaskTo2DVector()
+	public void VectorMask_Broadcast_1DMaskTo2DVector()
 	{
 		Vector vector = CreateVector([1f, 2f, 3f, 4f], columns: 2);
 		Mask mask = CreateMask([true, false], columns: 0);
 
-		float[] filtered = SyncValues(vector & mask);
-		filtered.Should().Equal([1f, 0f, 3f, 0f]);
+		float[] masked = SyncValues(vector & mask);
+		masked.Should().Equal([1f, 0f, 3f, 0f]);
 	}
 
 	[Fact]
@@ -166,5 +229,109 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		Action inPlace = () => Mask.IPOP(row, grid, MaskOperation.And);
 
 		inPlace.Should().Throw<PerformanceException>();
+	}
+
+	[Fact]
+	public void VectorIntCompare_OperatorsAndMethods()
+	{
+		VectorInt vector = CreateVectorInt([1, 2, 3, 4]);
+		VectorInt other = CreateVectorInt([0, 2, 5, 4]);
+
+		SyncMaskBits(vector > other).Should().Equal([true, false, false, false]);
+		SyncMaskBits(vector >= other).Should().Equal([true, true, false, true]);
+		SyncMaskBits(vector.CompareEquals(other)).Should().Equal([false, true, false, true]);
+	}
+
+	[Fact]
+	public void VectorIntMask_AndOperator()
+	{
+		VectorInt vector = CreateVectorInt([1, 2, 3, 4]);
+		Mask mask = CreateMask([true, false, true, false]);
+
+		SyncValues(vector & mask).Should().Equal([1, 0, 3, 0]);
+		SyncValues(vector & (mask, -1)).Should().Equal([1, -1, 3, -1]);
+	}
+
+	[Fact]
+	public void VectorIntFilter_EmptyMask_ReturnsZeroLength()
+	{
+		VectorInt vector = CreateVectorInt([1, 2, 3]);
+		Mask mask = CreateMask([false, false, false]);
+
+		VectorInt filtered = vector | mask;
+		filtered.Length.Should().Be(0);
+		filtered.Columns.Should().Be(0);
+	}
+
+	[Fact]
+	public void VectorIntMask_Broadcast_1DMaskTo2DVector()
+	{
+		VectorInt vector = CreateVectorInt([1, 2, 3, 4], columns: 2);
+		Mask mask = CreateMask([true, false], columns: 0);
+
+		SyncValues(vector & mask).Should().Equal([1, 0, 3, 0]);
+	}
+
+	[Fact]
+	public void VectorIntPartition_SplitsLanes()
+	{
+		VectorInt vector = CreateVectorInt([1, 2, 3, 4]);
+		Mask mask = CreateMask([true, false, true, false]);
+
+		(VectorInt trueLanes, VectorInt falseLanes) = vector / mask;
+
+		SyncValues(trueLanes).Should().Equal([1, 3]);
+		SyncValues(falseLanes).Should().Equal([2, 4]);
+	}
+
+	[Fact]
+	public void VectorIntPartition_ExtensionMethod_MatchesOperator()
+	{
+		VectorInt vector = CreateVectorInt([1, 2, 3, 4]);
+		Mask mask = CreateMask([true, false, true, false]);
+
+		(VectorInt opTrue, VectorInt opFalse) = vector / mask;
+		(VectorInt methodTrue, VectorInt methodFalse) = vector.Partition(mask);
+
+		SyncValues(methodTrue).Should().Equal(SyncValues(opTrue));
+		SyncValues(methodFalse).Should().Equal(SyncValues(opFalse));
+	}
+
+	[Fact]
+	public void VectorIntPartition_AllTrue_ReturnsFullVectorAndEmptyFalseLanes()
+	{
+		VectorInt vector = CreateVectorInt([1, 2, 3]);
+		Mask mask = CreateMask([true, true, true]);
+
+		(VectorInt trueLanes, VectorInt falseLanes) = vector.Partition(mask);
+
+		SyncValues(trueLanes).Should().Equal([1, 2, 3]);
+		falseLanes.Length.Should().Be(0);
+		falseLanes.Columns.Should().Be(0);
+	}
+
+	[Fact]
+	public void VectorIntPartition_AllFalse_ReturnsEmptyTrueLanesAndFullFalseVector()
+	{
+		VectorInt vector = CreateVectorInt([1, 2, 3]);
+		Mask mask = CreateMask([false, false, false]);
+
+		(VectorInt trueLanes, VectorInt falseLanes) = vector.Partition(mask);
+
+		trueLanes.Length.Should().Be(0);
+		trueLanes.Columns.Should().Be(0);
+		SyncValues(falseLanes).Should().Equal([1, 2, 3]);
+	}
+
+	[Fact]
+	public void VectorIntPartition_2D_BroadcastMask_SplitsInRowMajorOrder()
+	{
+		VectorInt vector = CreateVectorInt([1, 2, 3, 4], columns: 2);
+		Mask mask = CreateMask([true, false], columns: 0);
+
+		(VectorInt trueLanes, VectorInt falseLanes) = vector.Partition(mask);
+
+		SyncValues(trueLanes).Should().Equal([1, 3]);
+		SyncValues(falseLanes).Should().Equal([2, 4]);
 	}
 }

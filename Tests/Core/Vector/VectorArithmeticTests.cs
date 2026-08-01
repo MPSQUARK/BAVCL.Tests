@@ -69,6 +69,18 @@ public class VectorArithmeticTests(GpuTestFixture fixture) : GpuTestBase(fixture
         SyncValues(scalar / vector).ShouldBeCloseTo([scalar / 2f, scalar / 4f, scalar / 6f]);
     }
 
+    [Fact]
+    public void Divide_ByZero_ProducesInfinity()
+    {
+        var a = CreateVector([1f, -2f]);
+        var b = CreateVector([0f, 0f]);
+
+        float[] values = SyncValues(a / b);
+
+        float.IsPositiveInfinity(values[0]).Should().BeTrue();
+        float.IsNegativeInfinity(values[1]).Should().BeTrue();
+    }
+
     public static IEnumerable<object[]> BinaryOpData()
     {
         yield return [new float[] { 1, 2, 3 }, new float[] { 4, 5, 6 }, "add"];

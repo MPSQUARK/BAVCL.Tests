@@ -1,3 +1,4 @@
+using BAVCL.Core;
 using BAVCL.Tests.Helpers;
 
 namespace BAVCL.Tests.Core.VectorTests;
@@ -34,7 +35,7 @@ public class VectorStructuralTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var a = CreateVector([1f, 2f, 3f]);
         var b = CreateVector([4f, 5f, 6f]);
 
-        var result = a.Concat(b, axis: 'r');
+        var result = a.Concat(b, axis: ConcatAxis.Row);
 
         result.SyncCPU();
         result.Length.Should().Be(6);
