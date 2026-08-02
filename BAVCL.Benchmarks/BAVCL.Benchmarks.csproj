@@ -5,6 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>BAVCL.Benchmarks</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BAVCL\BAVCL\BAVCL.csproj" />
+    <ProjectReference Include="..\..\BAVCL\BAVCL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Scripts/**" />
+    <None Include="Results/**" />
   </ItemGroup>
 
 </Project>
