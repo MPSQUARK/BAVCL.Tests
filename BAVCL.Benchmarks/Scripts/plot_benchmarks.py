@@ -6,12 +6,12 @@ parses BenchmarkDotNet GitHub-flavoured tables, and produces line charts:
   - X axis: N (log scale)
   - Y axis: mean time (linear, auto-labelled ns / μs / ms / s)
   - Faint dashed guides at unit boundaries (1 ns, 1 μs, 1 ms, 1 s)
-  - One line per historical run; optional CPU vs GPU subplot charts
+  - Sort / ArgSort: one 2×2 figure per family (1D/2D × Asc/Desc subplots),
+    all historical runs on each subplot (solid = GPU, dashed = CPU, one colour per run)
 
 Usage:
     python plot_benchmarks.py --filter Sort --suite SortBenchmarks
     python plot_benchmarks.py --method IntSort_Gpu_Asc_1D
-    python plot_benchmarks.py --filter Sort --cpu-gpu
 """
 
 from __future__ import annotations
@@ -40,7 +40,21 @@ METHOD_N_SUFFIX_RE = re.compile(r"_(\d+)([KkMm])$")
 STANDARD_N = [100, 10_000, 1_000_000]
 SUITE_HEADER_RE = re.compile(r"^\*\*Suite:\*\*\s*(.+?)\s*$", re.MULTILINE)
 CPU_GPU_METHOD_RE = re.compile(
-    r"^(\w+Sort)_(Cpu|Gpu)_(Asc|Desc)_(\dD)$", re.IGNORECASE
+    r"^(\w+(?:Sort|Argsort))_(Cpu|Gpu)_(Asc|Desc)_(\dD)$", re.IGNORECASE
+)
+
+# 2×2 subplot layout: (row, col) -> (dim, order, title)
+CPU_GPU_VARIANTS: tuple[tuple[str, str, str], ...] = (
+    ("1D", "Asc", "1D Ascending"),
+    ("1D", "Desc", "1D Descending"),
+    ("2D", "Asc", "2D Ascending"),
+    ("2D", "Desc", "2D Descending"),
+)
+
+# method prefix -> consolidated output stem (Sort.png, ArgSort.png, …)
+CONSOLIDATED_CPU_GPU_FAMILIES: tuple[tuple[str, str], ...] = (
+    ("IntSort", "Sort"),
+    ("IntArgsort", "ArgSort"),
 )
 
 # Internal values are microseconds; labels mark human unit boundaries.
@@ -212,8 +226,13 @@ def discover_reports(directory: Path, suite_filter: str | None) -> list[ReportMe
         meta = parse_report_meta(path, directory)
         if meta is None:
             continue
-        if suite_filter and suite_filter not in meta.suite:
-            continue
+        if suite_filter:
+            suite_dir_match = (
+                path.parent.name == suite_filter
+                or path.parent.name == suite_filter.replace("Benchmarks", "")
+            )
+            if suite_filter not in meta.suite and not suite_dir_match:
+                continue
         reports.append(meta)
 
     return reports
@@ -389,23 +408,27 @@ def add_magnitude_guides(ax) -> None:
         )
 
 
-def short_run_name(label: str) -> str:
-    lower = label.lower()
+def legend_label(label: str) -> str:
+    """Unique, readable legend entry for one benchmark run."""
+    head = label.split(" (", 1)[0] if " (" in label else label
+    lower = head.lower()
     if "first-gpu-baseline" in lower or "pre-refactor" in lower:
-        return "pre-refactor"
+        return "14:00 pre-refactor"
     if "post-refactor" in lower:
-        return "post-refactor"
-    if "smoke" in lower:
-        return "smoke test"
-    if " (" in label:
-        head = label.split(" (", 1)[0]
-        if " " in head:
-            return head.split(" ", 1)[1]
-    return label[:24]
+        return "14:15 post-refactor"
+    if " " in head:
+        date, rest = head.split(" ", 1)
+        # Time-only runs: "2026-08-02 16:11:37"
+        if len(rest) >= 5 and rest[2] == ":":
+            return f"{date} {rest[:5]}"
+        # Tagged runs: "2026-08-02 14:15:31 post-refactor-gpu-baseline"
+        return rest if rest else head
+    return head[:28]
 
 
-def latest_run_label(runs: RunsData) -> str:
-    return sorted(runs.keys())[-1]
+def short_run_name(label: str) -> str:
+    """Compact name for chart legends."""
+    return legend_label(label)
 
 
 def method_suite(method: str, runs: RunsData, run_suites: dict[str, str]) -> str:
@@ -445,8 +468,9 @@ def plot_series(
     all_values: list[float] = []
     all_lows: list[float] = []
     cmap = plt.colormaps.get_cmap(cmap_name)
+    plotted = 0
 
-    for i, label in enumerate(labels):
+    for label in labels:
         if method not in runs[label]:
             continue
         xs, means, stds = runs[label][method]
@@ -454,17 +478,19 @@ def plot_series(
         all_values.extend(values)
         all_lows.extend(lows)
         linestyle = "-" if line_styles is None else line_styles.get(label, "-")
+        series_label = legend_label(label) if line_styles is None else label
         ax.errorbar(
             xs,
             means,
             yerr=stds,
-            label=short_run_name(label) if line_styles is None else label,
+            label=series_label,
             marker="o",
             capsize=4,
             linewidth=2,
             linestyle=linestyle,
-            color=cmap(i % 10),
+            color=cmap(plotted % 10),
         )
+        plotted += 1
     return all_values, all_lows
 
 
@@ -506,86 +532,158 @@ def plot_method(
     plt.close(fig)
 
 
-def discover_cpu_gpu_groups(methods: set[str]) -> dict[str, dict[str, tuple[str, str]]]:
-    """family_order -> dim -> (cpu_method, gpu_method)."""
-    partial: dict[str, dict[str, dict[str, str]]] = {}
+def family_has_cpu_gpu_coverage(prefix: str, methods: set[str]) -> bool:
+    """True when all four dim×order variants exist for both CPU and GPU."""
+    for dim, order, _ in CPU_GPU_VARIANTS:
+        cpu = f"{prefix}_Cpu_{order}_{dim}"
+        gpu = f"{prefix}_Gpu_{order}_{dim}"
+        if cpu not in methods or gpu not in methods:
+            return False
+    return True
 
-    for method in methods:
-        match = CPU_GPU_METHOD_RE.match(method)
-        if not match:
+
+def discover_consolidated_cpu_gpu_families(methods: set[str]) -> list[tuple[str, str]]:
+    """Return (method_prefix, output_stem) pairs ready for a 2×2 chart."""
+    families: list[tuple[str, str]] = []
+    for prefix, output_stem in CONSOLIDATED_CPU_GPU_FAMILIES:
+        if family_has_cpu_gpu_coverage(prefix, methods):
+            families.append((prefix, output_stem))
+    return families
+
+
+def plot_cpu_gpu_subplot(
+    ax,
+    runs: RunsData,
+    run_labels: list[str],
+    family_prefix: str,
+    dim: str,
+    order: str,
+    cmap_name: str = "tab10",
+) -> tuple[list[float], list[float], list[int]]:
+    """Plot all runs on one variant subplot; dashed = CPU, solid = GPU."""
+    all_values: list[float] = []
+    all_lows: list[float] = []
+    all_n: list[int] = []
+    cmap = plt.colormaps.get_cmap(cmap_name)
+
+    for i, label in enumerate(run_labels):
+        if label not in runs:
             continue
-        family, backend, order, dim = match.groups()
-        key = f"{family}_{order}"
-        partial.setdefault(key, {}).setdefault(dim, {})[backend.lower()] = method
+        color = cmap(i % 10)
+        cpu_method = f"{family_prefix}_Cpu_{order}_{dim}"
+        gpu_method = f"{family_prefix}_Gpu_{order}_{dim}"
 
-    groups: dict[str, dict[str, tuple[str, str]]] = {}
-    for key, dims in sorted(partial.items()):
-        mapped: dict[str, tuple[str, str]] = {}
-        for dim, backends in dims.items():
-            cpu = backends.get("cpu")
-            gpu = backends.get("gpu")
-            if cpu and gpu:
-                mapped[dim] = (cpu, gpu)
-        if mapped:
-            groups[key] = mapped
-    return groups
+        if cpu_method in runs[label]:
+            xs, means, stds = runs[label][cpu_method]
+            all_n.extend(xs)
+            values, lows = series_value_bounds(means, stds)
+            all_values.extend(values)
+            all_lows.extend(lows)
+            ax.errorbar(
+                xs,
+                means,
+                yerr=stds,
+                marker="o",
+                capsize=3,
+                linewidth=1.8,
+                linestyle="--",
+                color=color,
+            )
+
+        if gpu_method in runs[label]:
+            xs, means, stds = runs[label][gpu_method]
+            all_n.extend(xs)
+            values, lows = series_value_bounds(means, stds)
+            all_values.extend(values)
+            all_lows.extend(lows)
+            ax.errorbar(
+                xs,
+                means,
+                yerr=stds,
+                marker="s",
+                capsize=3,
+                linewidth=1.8,
+                linestyle="-",
+                color=color,
+            )
+
+    return all_values, all_lows, all_n
 
 
-def plot_cpu_gpu_group(
-    group_key: str,
-    dim_methods: dict[str, tuple[str, str]],
+def plot_cpu_gpu_family(
+    family_prefix: str,
+    output_stem: str,
     runs: RunsData,
     output_dir: Path,
-    run_label: str | None = None,
 ) -> None:
-    run = run_label or latest_run_label(runs)
-    dims = [d for d in ("1D", "2D") if d in dim_methods]
-    if not dims:
+    """One 2×2 figure: dim×order subplots, all runs, CPU dashed / GPU solid."""
+    run_labels = sorted(runs.keys())
+    if not run_labels:
         return
 
-    fig, axes = plt.subplots(1, len(dims), figsize=(5.5 * len(dims), 5.5), squeeze=False)
-    title = group_key.replace("_", " ")
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10), squeeze=True)
+    cmap = plt.colormaps.get_cmap("tab10")
 
-    for ax, dim in zip(axes[0], dims, strict=True):
-        cpu_method, gpu_method = dim_methods[dim]
-        all_values: list[float] = []
-        all_lows: list[float] = []
-        all_n: list[int] = []
-        cpu_color, gpu_color = "#1f77b4", "#ff7f0e"
-
-        if run in runs and cpu_method in runs[run]:
-            xs, means, stds = runs[run][cpu_method]
-            all_n.extend(xs)
-            values, lows = series_value_bounds(means, stds)
-            all_values.extend(values)
-            all_lows.extend(lows)
-            ax.errorbar(
-                xs, means, yerr=stds, label="CPU", marker="o", capsize=4,
-                linewidth=2, color=cpu_color,
-            )
-        if run in runs and gpu_method in runs[run]:
-            xs, means, stds = runs[run][gpu_method]
-            all_n.extend(xs)
-            values, lows = series_value_bounds(means, stds)
-            all_values.extend(values)
-            all_lows.extend(lows)
-            ax.errorbar(
-                xs, means, yerr=stds, label="GPU", marker="s", capsize=4,
-                linewidth=2, linestyle="--", color=gpu_color,
-            )
-
+    for ax, (dim, order, variant_title) in zip(
+        axes.flat, CPU_GPU_VARIANTS, strict=True
+    ):
+        all_values, all_lows, all_n = plot_cpu_gpu_subplot(
+            ax, runs, run_labels, family_prefix, dim, order
+        )
         configure_log_x_axis(ax, all_n)
         finalize_time_axis(ax, all_values, all_lows)
-        ax.set_title(f"{dim} — {short_run_name(run)}", fontsize=11)
-        ax.legend(loc="upper left", fontsize=9)
+        ax.set_title(variant_title, fontsize=11)
 
-    fig.suptitle(f"CPU vs GPU: {title}", fontsize=13, fontweight="bold", y=1.02)
-    fig.tight_layout()
+    run_handles = [
+        plt.Line2D([0], [0], color=cmap(i % 10), linewidth=2, marker="o", label=legend_label(label))
+        for i, label in enumerate(run_labels)
+    ]
+    style_handles = [
+        plt.Line2D([0], [0], color="#444444", linewidth=2, linestyle="-", label="GPU"),
+        plt.Line2D([0], [0], color="#444444", linewidth=2, linestyle="--", label="CPU"),
+    ]
+    fig.legend(
+        handles=run_handles + style_handles,
+        title="Run / backend",
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.02),
+        ncol=min(6, len(run_handles) + 2),
+        fontsize=8,
+    )
 
-    safe_name = re.sub(r"[^\w.-]+", "_", group_key)
+    fig.suptitle(
+        f"{output_stem}: CPU vs GPU across runs\n(dashed = CPU, solid = GPU)",
+        fontsize=13,
+        fontweight="bold",
+        y=0.98,
+    )
+    fig.tight_layout(rect=(0, 0.06, 1, 0.94))
+
     output_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_dir / f"cpu_gpu_{safe_name}.png", dpi=150, bbox_inches="tight")
+    safe_name = re.sub(r"[^\w.-]+", "_", output_stem)
+    fig.savefig(output_dir / f"{safe_name}.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
+
+
+def selection_wants_consolidated_cpu_gpu(
+    args_filter: str | None,
+    args_suite: str | None,
+    all_methods: set[str],
+    cpu_gpu_flag: bool,
+) -> bool:
+    if cpu_gpu_flag:
+        return True
+    sort_methods = [m for m in all_methods if CPU_GPU_METHOD_RE.match(m)]
+    if not sort_methods:
+        return False
+    if args_suite and "SortBenchmark" in args_suite:
+        return True
+    if not args_filter:
+        return False
+    needle = args_filter.lower()
+    if needle in ("sort", "argsort"):
+        return True
+    return any(needle in m.lower() for m in sort_methods)
 
 
 def plot_overview(
@@ -655,12 +753,12 @@ def main() -> None:
     parser.add_argument(
         "--cpu-gpu",
         action="store_true",
-        help="Also write CPU vs GPU subplot charts (latest run)",
+        help="Write consolidated Sort/ArgSort 2×2 CPU vs GPU charts (default when --filter Sort)",
     )
     parser.add_argument(
-        "--run",
-        type=str,
-        help="Run label substring for CPU vs GPU charts (default: latest)",
+        "--per-method",
+        action="store_true",
+        help="Also write one PNG per benchmark method (skipped for Sort unless set)",
     )
     args = parser.parse_args()
 
@@ -706,39 +804,42 @@ def main() -> None:
 
     title_suffix = args.suite or args.filter or "all methods"
     plots_root = args.output
-    print(
-        f"Plotting {len(methods)} method(s) from {len(runs)} run(s) "
-        f"-> {plots_root}/<suite>/"
+    consolidated = selection_wants_consolidated_cpu_gpu(
+        args.filter, args.suite, all_methods, args.cpu_gpu
     )
-    for method in methods:
-        suite = method_suite(method, runs, run_suites)
-        plot_method(method, runs, plots_root / suite)
+    plot_individual = args.per_method or args.method or not consolidated
 
-    want_cpu_gpu = args.cpu_gpu
-    if not want_cpu_gpu and args.filter and "Sort" in args.filter and methods:
-        want_cpu_gpu = any(CPU_GPU_METHOD_RE.match(m) for m in methods)
-    if want_cpu_gpu:
-        cpu_gpu_methods = set(methods) if methods else all_methods
-        groups = discover_cpu_gpu_groups(cpu_gpu_methods)
-        if not groups:
-            print("CPU vs GPU: no matching Sort Cpu/Gpu method pairs in selection.")
+    if plot_individual:
+        print(
+            f"Plotting {len(methods)} method(s) from {len(runs)} run(s) "
+            f"-> {plots_root}/<suite>/"
+        )
+        for method in methods:
+            suite = method_suite(method, runs, run_suites)
+            plot_method(method, runs, plots_root / suite)
+    elif consolidated:
+        print(
+            f"Consolidated CPU vs GPU charts from {len(runs)} run(s) "
+            f"-> {plots_root}/<suite>/"
+        )
+
+    if consolidated:
+        cpu_gpu_methods = all_methods
+        families = discover_consolidated_cpu_gpu_families(cpu_gpu_methods)
+        if not families:
+            print("Consolidated CPU vs GPU: no Sort/ArgSort families with full coverage.")
         else:
-            run_label = latest_run_label(runs)
-            if args.run:
-                matches = [label for label in runs if args.run in label]
-                if matches:
-                    run_label = matches[-1]
-            first_pair = next(iter(next(iter(groups.values())).values()))
+            first_prefix = families[0][0]
             cpu_gpu_suite = args.suite if args.suite else method_suite(
-                first_pair[0], runs, run_suites
+                f"{first_prefix}_Cpu_Asc_1D", runs, run_suites
             )
             cpu_gpu_dir = plots_root / cpu_gpu_suite
             print(
-                f"CPU vs GPU charts ({len(groups)} groups, run={short_run_name(run_label)}) "
-                f"-> {cpu_gpu_dir}/"
+                f"Writing {len(families)} consolidated chart(s) "
+                f"({', '.join(stem for _, stem in families)}) -> {cpu_gpu_dir}/"
             )
-            for group_key, dim_methods in groups.items():
-                plot_cpu_gpu_group(group_key, dim_methods, runs, cpu_gpu_dir, run_label)
+            for family_prefix, output_stem in families:
+                plot_cpu_gpu_family(family_prefix, output_stem, runs, cpu_gpu_dir)
 
     if args.overview or (not args.method and not args.filter):
         overview_suite = resolve_overview_suite(args.suite, run_suites, title_suffix)

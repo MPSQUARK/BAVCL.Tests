@@ -1,9 +1,9 @@
 namespace BAVCL.Benchmarks;
 
 /// <summary>
-/// User-facing sort API: SortAscending / SortDescending (CPU) and SortAscendingX / SortDescendingX (GPU).
-/// 1D and 2D layouts at small / typical / large sizes (48 benchmarks total).
+/// User-facing sort/argsort API at small / typical / large sizes (28 methods × 3 N = 84 cases).
 /// </summary>
+[MemoryDiagnoser]
 public class SortBenchmarks
 {
 	static readonly GPU Gpu = GPUManager.Default;
@@ -12,6 +12,7 @@ public class SortBenchmarks
 	Vector _floatVector = null!;
 	VectorInt _intMatrix = null!;
 	Vector _floatMatrix = null!;
+	static VectorInt _argsortSink = null!;
 
 	[Params(BenchmarkSizes.Small, BenchmarkSizes.Typical, BenchmarkSizes.Large)]
 	public int N { get; set; }
@@ -44,6 +45,7 @@ public class SortBenchmarks
 
 		_intMatrix = new VectorInt(Gpu, intMatrixData, columns: cols, cache: true);
 		_floatMatrix = new Vector(Gpu, floatMatrixData, columns: cols, cache: true);
+		_argsortSink = new VectorInt(Gpu, 1);
 	}
 
 	[Benchmark] public void IntSort_Cpu_Asc_1D() => CloneAndSortIntCpuAsc(_intVector);
@@ -65,6 +67,16 @@ public class SortBenchmarks
 	[Benchmark] public void FloatSort_Cpu_Desc_2D() => CloneAndSortFloatCpuDesc(_floatMatrix);
 	[Benchmark] public void FloatSort_Gpu_Asc_2D() => CloneAndSortFloatGpuAsc(_floatMatrix);
 	[Benchmark] public void FloatSort_Gpu_Desc_2D() => CloneAndSortFloatGpuDesc(_floatMatrix);
+
+	[Benchmark] public void IntArgsort_Gpu_Asc_1D() => CloneAndArgsortIntGpuAsc(_intVector);
+	[Benchmark] public void IntArgsort_Gpu_Desc_1D() => CloneAndArgsortIntGpuDesc(_intVector);
+	[Benchmark] public void IntArgsort_Gpu_Asc_2D() => CloneAndArgsortIntGpuAsc(_intMatrix);
+	[Benchmark] public void IntArgsort_Gpu_Desc_2D() => CloneAndArgsortIntGpuDesc(_intMatrix);
+
+	[Benchmark] public void FloatArgsort_Gpu_Asc_1D() => CloneAndArgsortFloatGpuAsc(_floatVector);
+	[Benchmark] public void FloatArgsort_Gpu_Desc_1D() => CloneAndArgsortFloatGpuDesc(_floatVector);
+	[Benchmark] public void FloatArgsort_Gpu_Asc_2D() => CloneAndArgsortFloatGpuAsc(_floatMatrix);
+	[Benchmark] public void FloatArgsort_Gpu_Desc_2D() => CloneAndArgsortFloatGpuDesc(_floatMatrix);
 
 	static void CloneAndSortIntCpuAsc(VectorInt source)
 	{
@@ -112,5 +124,35 @@ public class SortBenchmarks
 	{
 		var copy = new Vector(Gpu, source.ToArray(), source.Columns, cache: true);
 		copy.SortDescendingX();
+	}
+
+	static void CloneAndArgsortIntGpuAsc(VectorInt source)
+	{
+		var copy = new VectorInt(Gpu, source.ToArray(), source.Columns, cache: true);
+		Consume(copy.ArgsortAscendingX());
+	}
+
+	static void CloneAndArgsortIntGpuDesc(VectorInt source)
+	{
+		var copy = new VectorInt(Gpu, source.ToArray(), source.Columns, cache: true);
+		Consume(copy.ArgsortDescendingX());
+	}
+
+	static void CloneAndArgsortFloatGpuAsc(Vector source)
+	{
+		var copy = new Vector(Gpu, source.ToArray(), source.Columns, cache: true);
+		Consume(copy.ArgsortAscendingX());
+	}
+
+	static void CloneAndArgsortFloatGpuDesc(Vector source)
+	{
+		var copy = new Vector(Gpu, source.ToArray(), source.Columns, cache: true);
+		Consume(copy.ArgsortDescendingX());
+	}
+
+	static void Consume(VectorInt indices)
+	{
+		if (indices.Length > 0)
+			_argsortSink = indices;
 	}
 }

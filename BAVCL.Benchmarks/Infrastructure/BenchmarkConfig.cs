@@ -40,6 +40,13 @@ public static class BenchmarkConfig
 				return segment;
 		}
 
+		if (trimmed.Contains("SortProbe", StringComparison.Ordinal))
+			return "SortProbeBenchmarks";
+
+		// SortBenchmarks method filters (Sort/Argsort) without class prefix -> SortBenchmarks folder
+		if (IsSortBenchmarksMethodFilter(trimmed))
+			return "SortBenchmarks";
+
 		// SortBenchmarks.IntSort_Gpu_Asc_1D -> SortBenchmarks
 		int dot = trimmed.IndexOf('.');
 		if (dot > 0)
@@ -52,6 +59,12 @@ public static class BenchmarkConfig
 
 		return trimmed;
 	}
+
+	static bool IsSortBenchmarksMethodFilter(string trimmed) =>
+		trimmed.Contains("IntSort_", StringComparison.Ordinal)
+		|| trimmed.Contains("FloatSort_", StringComparison.Ordinal)
+		|| trimmed.Contains("IntArgsort_", StringComparison.Ordinal)
+		|| trimmed.Contains("FloatArgsort_", StringComparison.Ordinal);
 
 	static string SanitizeScope(string scope) =>
 		Regex.Replace(scope, @"[^\w.-]", "_");
