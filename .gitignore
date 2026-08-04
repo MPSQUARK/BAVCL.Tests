@@ -19,11 +19,6 @@ BAVCL.Benchmarks/Results/**
 
 
 
-# Generated plots (reproducible from Scripts/plot_benchmarks.py)
-
-BAVCL.Benchmarks/Plots/
-
-
 
 # BenchmarkDotNet in-process emit artifacts
 
