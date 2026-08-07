@@ -1,7 +1,9 @@
 namespace BAVCL.Benchmarks;
 
 /// <summary>
-/// User-facing sort/argsort API at small / typical / large sizes (28 methods × 3 N = 84 cases).
+/// User-facing sort/argsort API at small / typical / large sizes (32 methods × 3 N = 96 cases).
+/// Sort and argsort are both allocating here (<c>SortAsc</c>/<c>SortAscX</c>, <c>ArgsortAsc</c>/<c>ArgsortAscX</c>),
+/// so no manual clone-before-benchmark step is needed — the source vectors are never mutated.
 /// </summary>
 [MemoryDiagnoser]
 public class SortBenchmarks
@@ -12,7 +14,8 @@ public class SortBenchmarks
 	Vector _floatVector = null!;
 	VectorInt _intMatrix = null!;
 	Vector _floatMatrix = null!;
-	static VectorInt _argsortSink = null!;
+	static VectorInt _intSink = null!;
+	static Vector _floatSink = null!;
 
 	[Params(BenchmarkSizes.Small, BenchmarkSizes.Typical, BenchmarkSizes.Large)]
 	public int N { get; set; }
@@ -45,114 +48,59 @@ public class SortBenchmarks
 
 		_intMatrix = new VectorInt(Gpu, intMatrixData, columns: cols, cache: true);
 		_floatMatrix = new Vector(Gpu, floatMatrixData, columns: cols, cache: true);
-		_argsortSink = new VectorInt(Gpu, 1);
+		_intSink = new VectorInt(Gpu, 1);
+		_floatSink = new Vector(Gpu, 1);
 	}
 
-	[Benchmark] public void IntSort_Cpu_Asc_1D() => CloneAndSortIntCpuAsc(_intVector);
-	[Benchmark] public void IntSort_Cpu_Desc_1D() => CloneAndSortIntCpuDesc(_intVector);
-	[Benchmark] public void IntSort_Gpu_Asc_1D() => CloneAndSortIntGpuAsc(_intVector);
-	[Benchmark] public void IntSort_Gpu_Desc_1D() => CloneAndSortIntGpuDesc(_intVector);
+	[Benchmark] public void IntSort_Cpu_Asc_1D() => Consume(_intVector.SortAsc());
+	[Benchmark] public void IntSort_Cpu_Desc_1D() => Consume(_intVector.SortDesc());
+	[Benchmark] public void IntSort_Gpu_Asc_1D() => Consume(_intVector.SortAscX());
+	[Benchmark] public void IntSort_Gpu_Desc_1D() => Consume(_intVector.SortDescX());
 
-	[Benchmark] public void FloatSort_Cpu_Asc_1D() => CloneAndSortFloatCpuAsc(_floatVector);
-	[Benchmark] public void FloatSort_Cpu_Desc_1D() => CloneAndSortFloatCpuDesc(_floatVector);
-	[Benchmark] public void FloatSort_Gpu_Asc_1D() => CloneAndSortFloatGpuAsc(_floatVector);
-	[Benchmark] public void FloatSort_Gpu_Desc_1D() => CloneAndSortFloatGpuDesc(_floatVector);
+	[Benchmark] public void FloatSort_Cpu_Asc_1D() => Consume(_floatVector.SortAsc());
+	[Benchmark] public void FloatSort_Cpu_Desc_1D() => Consume(_floatVector.SortDesc());
+	[Benchmark] public void FloatSort_Gpu_Asc_1D() => Consume(_floatVector.SortAscX());
+	[Benchmark] public void FloatSort_Gpu_Desc_1D() => Consume(_floatVector.SortDescX());
 
-	[Benchmark] public void IntSort_Cpu_Asc_2D() => CloneAndSortIntCpuAsc(_intMatrix);
-	[Benchmark] public void IntSort_Cpu_Desc_2D() => CloneAndSortIntCpuDesc(_intMatrix);
-	[Benchmark] public void IntSort_Gpu_Asc_2D() => CloneAndSortIntGpuAsc(_intMatrix);
-	[Benchmark] public void IntSort_Gpu_Desc_2D() => CloneAndSortIntGpuDesc(_intMatrix);
+	[Benchmark] public void IntSort_Cpu_Asc_2D() => Consume(_intMatrix.SortAsc());
+	[Benchmark] public void IntSort_Cpu_Desc_2D() => Consume(_intMatrix.SortDesc());
+	[Benchmark] public void IntSort_Gpu_Asc_2D() => Consume(_intMatrix.SortAscX());
+	[Benchmark] public void IntSort_Gpu_Desc_2D() => Consume(_intMatrix.SortDescX());
 
-	[Benchmark] public void FloatSort_Cpu_Asc_2D() => CloneAndSortFloatCpuAsc(_floatMatrix);
-	[Benchmark] public void FloatSort_Cpu_Desc_2D() => CloneAndSortFloatCpuDesc(_floatMatrix);
-	[Benchmark] public void FloatSort_Gpu_Asc_2D() => CloneAndSortFloatGpuAsc(_floatMatrix);
-	[Benchmark] public void FloatSort_Gpu_Desc_2D() => CloneAndSortFloatGpuDesc(_floatMatrix);
+	[Benchmark] public void FloatSort_Cpu_Asc_2D() => Consume(_floatMatrix.SortAsc());
+	[Benchmark] public void FloatSort_Cpu_Desc_2D() => Consume(_floatMatrix.SortDesc());
+	[Benchmark] public void FloatSort_Gpu_Asc_2D() => Consume(_floatMatrix.SortAscX());
+	[Benchmark] public void FloatSort_Gpu_Desc_2D() => Consume(_floatMatrix.SortDescX());
 
-	[Benchmark] public void IntArgsort_Gpu_Asc_1D() => CloneAndArgsortIntGpuAsc(_intVector);
-	[Benchmark] public void IntArgsort_Gpu_Desc_1D() => CloneAndArgsortIntGpuDesc(_intVector);
-	[Benchmark] public void IntArgsort_Gpu_Asc_2D() => CloneAndArgsortIntGpuAsc(_intMatrix);
-	[Benchmark] public void IntArgsort_Gpu_Desc_2D() => CloneAndArgsortIntGpuDesc(_intMatrix);
+	[Benchmark] public void IntArgsort_Cpu_Asc_1D() => Consume(_intVector.ArgsortAsc());
+	[Benchmark] public void IntArgsort_Cpu_Desc_1D() => Consume(_intVector.ArgsortDesc());
+	[Benchmark] public void IntArgsort_Gpu_Asc_1D() => Consume(_intVector.ArgsortAscX());
+	[Benchmark] public void IntArgsort_Gpu_Desc_1D() => Consume(_intVector.ArgsortDescX());
 
-	[Benchmark] public void FloatArgsort_Gpu_Asc_1D() => CloneAndArgsortFloatGpuAsc(_floatVector);
-	[Benchmark] public void FloatArgsort_Gpu_Desc_1D() => CloneAndArgsortFloatGpuDesc(_floatVector);
-	[Benchmark] public void FloatArgsort_Gpu_Asc_2D() => CloneAndArgsortFloatGpuAsc(_floatMatrix);
-	[Benchmark] public void FloatArgsort_Gpu_Desc_2D() => CloneAndArgsortFloatGpuDesc(_floatMatrix);
+	[Benchmark] public void IntArgsort_Cpu_Asc_2D() => Consume(_intMatrix.ArgsortAsc());
+	[Benchmark] public void IntArgsort_Cpu_Desc_2D() => Consume(_intMatrix.ArgsortDesc());
+	[Benchmark] public void IntArgsort_Gpu_Asc_2D() => Consume(_intMatrix.ArgsortAscX());
+	[Benchmark] public void IntArgsort_Gpu_Desc_2D() => Consume(_intMatrix.ArgsortDescX());
 
-	static void CloneAndSortIntCpuAsc(VectorInt source)
+	[Benchmark] public void FloatArgsort_Cpu_Asc_1D() => Consume(_floatVector.ArgsortAsc());
+	[Benchmark] public void FloatArgsort_Cpu_Desc_1D() => Consume(_floatVector.ArgsortDesc());
+	[Benchmark] public void FloatArgsort_Gpu_Asc_1D() => Consume(_floatVector.ArgsortAscX());
+	[Benchmark] public void FloatArgsort_Gpu_Desc_1D() => Consume(_floatVector.ArgsortDescX());
+
+	[Benchmark] public void FloatArgsort_Cpu_Asc_2D() => Consume(_floatMatrix.ArgsortAsc());
+	[Benchmark] public void FloatArgsort_Cpu_Desc_2D() => Consume(_floatMatrix.ArgsortDesc());
+	[Benchmark] public void FloatArgsort_Gpu_Asc_2D() => Consume(_floatMatrix.ArgsortAscX());
+	[Benchmark] public void FloatArgsort_Gpu_Desc_2D() => Consume(_floatMatrix.ArgsortDescX());
+
+	static void Consume(VectorInt result)
 	{
-		var copy = new VectorInt(Gpu, source.ToArray(), source.Columns, cache: true);
-		copy.SortAscending();
+		if (result.Length > 0)
+			_intSink = result;
 	}
 
-	static void CloneAndSortIntCpuDesc(VectorInt source)
+	static void Consume(Vector result)
 	{
-		var copy = new VectorInt(Gpu, source.ToArray(), source.Columns, cache: true);
-		copy.SortDescending();
-	}
-
-	static void CloneAndSortIntGpuAsc(VectorInt source)
-	{
-		var copy = new VectorInt(Gpu, source.ToArray(), source.Columns, cache: true);
-		copy.SortAscendingX();
-	}
-
-	static void CloneAndSortIntGpuDesc(VectorInt source)
-	{
-		var copy = new VectorInt(Gpu, source.ToArray(), source.Columns, cache: true);
-		copy.SortDescendingX();
-	}
-
-	static void CloneAndSortFloatCpuAsc(Vector source)
-	{
-		var copy = new Vector(Gpu, source.ToArray(), source.Columns, cache: true);
-		copy.SortAscending();
-	}
-
-	static void CloneAndSortFloatCpuDesc(Vector source)
-	{
-		var copy = new Vector(Gpu, source.ToArray(), source.Columns, cache: true);
-		copy.SortDescending();
-	}
-
-	static void CloneAndSortFloatGpuAsc(Vector source)
-	{
-		var copy = new Vector(Gpu, source.ToArray(), source.Columns, cache: true);
-		copy.SortAscendingX();
-	}
-
-	static void CloneAndSortFloatGpuDesc(Vector source)
-	{
-		var copy = new Vector(Gpu, source.ToArray(), source.Columns, cache: true);
-		copy.SortDescendingX();
-	}
-
-	static void CloneAndArgsortIntGpuAsc(VectorInt source)
-	{
-		var copy = new VectorInt(Gpu, source.ToArray(), source.Columns, cache: true);
-		Consume(copy.ArgsortAscendingX());
-	}
-
-	static void CloneAndArgsortIntGpuDesc(VectorInt source)
-	{
-		var copy = new VectorInt(Gpu, source.ToArray(), source.Columns, cache: true);
-		Consume(copy.ArgsortDescendingX());
-	}
-
-	static void CloneAndArgsortFloatGpuAsc(Vector source)
-	{
-		var copy = new Vector(Gpu, source.ToArray(), source.Columns, cache: true);
-		Consume(copy.ArgsortAscendingX());
-	}
-
-	static void CloneAndArgsortFloatGpuDesc(Vector source)
-	{
-		var copy = new Vector(Gpu, source.ToArray(), source.Columns, cache: true);
-		Consume(copy.ArgsortDescendingX());
-	}
-
-	static void Consume(VectorInt indices)
-	{
-		if (indices.Length > 0)
-			_argsortSink = indices;
+		if (result.Length > 0)
+			_floatSink = result;
 	}
 }

@@ -40,23 +40,23 @@ From the `BAVCL.Tests` repo root:
 
 ```bash
 
-# All sorting benchmarks (56 cases: 48 sort + 8 shape)
+# All sorting benchmarks (104 cases: 96 sort/argsort + 8 shape)
 dotnet run -c Release --project BAVCL.Benchmarks -- --filter *SortBenchmarks* *SortShapeBenchmarks*
 
-# Sort API only (48 cases)
+# Sort API only (96 cases)
 dotnet run -c Release --project BAVCL.Benchmarks -- --filter *SortBenchmarks*
 
 ```
 
-Do not pass `--job short` unless you intentionally want a second job — it doubles the case count (e.g. 56 → 112).
+Do not pass `--job short` unless you intentionally want a second job — it doubles the case count (e.g. 104 → 208).
 
 Each run writes one report to `Results/<Suite>/<timestamp>-baseline.md`.
 
-### Sort benchmarks (48 + 8 = 56 cases)
+### Sort benchmarks (96 + 8 = 104 cases)
 
 
 
-`SortAscending` / `SortDescending` (CPU) and `SortAscendingX` / `SortDescendingX` (GPU), int and float, 1D and 2D, at N = 100 / 10_000 / 1_000_000.
+Allocating `SortAsc` / `SortDesc` and `ArgsortAsc` / `ArgsortDesc` (CPU) and `SortAscX` / `SortDescX` and `ArgsortAscX` / `ArgsortDescX` (GPU), int and float, 1D and 2D, at N = 100 / 10_000 / 1_000_000.
 
 
 
@@ -97,7 +97,7 @@ Charts land in `Plots/<Suite>/`:
 
 |-------|-------------|-------|
 
-| `SortBenchmarks` | 16 × 3 = 48 | Sort asc/desc, CPU/GPU, int/float, 1D/2D |
+| `SortBenchmarks` | 32 × 3 = 96 | Sort/argsort asc/desc, CPU/GPU, int/float, 1D/2D |
 | `SortShapeBenchmarks` | 2 × 2 × 2 = 8 | GPU int sort in-place; matrix shape sweep |
 
 | `SpanReadBenchmarks` | 3 × 3 = 9 | Span read paths |

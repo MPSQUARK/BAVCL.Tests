@@ -40,9 +40,6 @@ public static class BenchmarkConfig
 				return segment;
 		}
 
-		if (trimmed.Contains("SortProbe", StringComparison.Ordinal))
-			return "SortProbeBenchmarks";
-
 		// SortBenchmarks method filters (Sort/Argsort) without class prefix -> SortBenchmarks folder
 		if (IsSortBenchmarksMethodFilter(trimmed))
 			return "SortBenchmarks";

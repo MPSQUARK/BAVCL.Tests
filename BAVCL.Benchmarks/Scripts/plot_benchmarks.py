@@ -56,6 +56,9 @@ CONSOLIDATED_CPU_GPU_FAMILIES: tuple[tuple[str, str], ...] = (
     ("IntSort", "Sort"),
     ("IntArgsort", "ArgSort"),
 )
+# GPU-only families (no CPU benchmarks); same 2×2 layout, solid lines only.
+# Kept for historical reports recorded before CPU argsort benchmarks existed.
+CONSOLIDATED_GPU_ONLY_FAMILIES: tuple[tuple[str, str], ...] = ()
 
 # Internal values are microseconds; labels mark human unit boundaries.
 MAGNITUDE_GUIDES = (
@@ -551,6 +554,23 @@ def discover_consolidated_cpu_gpu_families(methods: set[str]) -> list[tuple[str,
     return families
 
 
+def family_has_gpu_coverage(prefix: str, methods: set[str]) -> bool:
+    """True when all four dim×order GPU variants exist."""
+    for dim, order, _ in CPU_GPU_VARIANTS:
+        if f"{prefix}_Gpu_{order}_{dim}" not in methods:
+            return False
+    return True
+
+
+def discover_consolidated_gpu_only_families(methods: set[str]) -> list[tuple[str, str]]:
+    """Return (method_prefix, output_stem) pairs for GPU-only 2×2 charts."""
+    families: list[tuple[str, str]] = []
+    for prefix, output_stem in CONSOLIDATED_GPU_ONLY_FAMILIES:
+        if family_has_gpu_coverage(prefix, methods):
+            families.append((prefix, output_stem))
+    return families
+
+
 def plot_cpu_gpu_subplot(
     ax,
     runs: RunsData,
@@ -653,6 +673,105 @@ def plot_cpu_gpu_family(
 
     fig.suptitle(
         f"{output_stem}: CPU vs GPU across runs\n(dashed = CPU, solid = GPU)",
+        fontsize=13,
+        fontweight="bold",
+        y=0.98,
+    )
+    fig.tight_layout(rect=(0, 0.06, 1, 0.94))
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    safe_name = re.sub(r"[^\w.-]+", "_", output_stem)
+    fig.savefig(output_dir / f"{safe_name}.png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def plot_gpu_only_subplot(
+    ax,
+    runs: RunsData,
+    run_labels: list[str],
+    family_prefix: str,
+    dim: str,
+    order: str,
+    cmap_name: str = "tab10",
+) -> tuple[list[float], list[float], list[int]]:
+    """Plot all runs on one variant subplot; solid squares = GPU."""
+    all_values: list[float] = []
+    all_lows: list[float] = []
+    all_n: list[int] = []
+    cmap = plt.colormaps.get_cmap(cmap_name)
+
+    for i, label in enumerate(run_labels):
+        if label not in runs:
+            continue
+        gpu_method = f"{family_prefix}_Gpu_{order}_{dim}"
+        if gpu_method not in runs[label]:
+            continue
+        xs, means, stds = runs[label][gpu_method]
+        all_n.extend(xs)
+        values, lows = series_value_bounds(means, stds)
+        all_values.extend(values)
+        all_lows.extend(lows)
+        ax.errorbar(
+            xs,
+            means,
+            yerr=stds,
+            marker="s",
+            capsize=3,
+            linewidth=1.8,
+            linestyle="-",
+            color=cmap(i % 10),
+        )
+
+    return all_values, all_lows, all_n
+
+
+def plot_gpu_only_family(
+    family_prefix: str,
+    output_stem: str,
+    runs: RunsData,
+    output_dir: Path,
+) -> None:
+    """One 2×2 figure: dim×order subplots, all runs, GPU solid squares."""
+    run_labels = sorted(runs.keys())
+    if not run_labels:
+        return
+
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10), squeeze=True)
+    cmap = plt.colormaps.get_cmap("tab10")
+
+    for ax, (dim, order, variant_title) in zip(
+        axes.flat, CPU_GPU_VARIANTS, strict=True
+    ):
+        all_values, all_lows, all_n = plot_gpu_only_subplot(
+            ax, runs, run_labels, family_prefix, dim, order
+        )
+        configure_log_x_axis(ax, all_n)
+        finalize_time_axis(ax, all_values, all_lows)
+        ax.set_title(variant_title, fontsize=11)
+
+    run_handles = [
+        plt.Line2D(
+            [0],
+            [0],
+            color=cmap(i % 10),
+            linewidth=2,
+            linestyle="-",
+            marker="s",
+            label=legend_label(label),
+        )
+        for i, label in enumerate(run_labels)
+    ]
+    fig.legend(
+        handles=run_handles,
+        title="Run",
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.02),
+        ncol=min(6, len(run_handles)),
+        fontsize=8,
+    )
+
+    fig.suptitle(
+        f"{output_stem}: GPU across runs\n(solid = GPU, square markers)",
         fontsize=13,
         fontweight="bold",
         y=0.98,
@@ -826,20 +945,32 @@ def main() -> None:
     if consolidated:
         cpu_gpu_methods = all_methods
         families = discover_consolidated_cpu_gpu_families(cpu_gpu_methods)
+        gpu_only_families = discover_consolidated_gpu_only_families(all_methods)
+        suite_hint = families[0][0] if families else (
+            gpu_only_families[0][0] if gpu_only_families else "SortBenchmarks"
+        )
+        cpu_gpu_suite = args.suite if args.suite else method_suite(
+            f"{suite_hint}_Gpu_Asc_1D", runs, run_suites
+        )
+        cpu_gpu_dir = plots_root / cpu_gpu_suite
+
         if not families:
-            print("Consolidated CPU vs GPU: no Sort/ArgSort families with full coverage.")
+            print("Consolidated CPU vs GPU: no Sort families with full CPU+GPU coverage.")
         else:
-            first_prefix = families[0][0]
-            cpu_gpu_suite = args.suite if args.suite else method_suite(
-                f"{first_prefix}_Cpu_Asc_1D", runs, run_suites
-            )
-            cpu_gpu_dir = plots_root / cpu_gpu_suite
             print(
                 f"Writing {len(families)} consolidated chart(s) "
                 f"({', '.join(stem for _, stem in families)}) -> {cpu_gpu_dir}/"
             )
             for family_prefix, output_stem in families:
                 plot_cpu_gpu_family(family_prefix, output_stem, runs, cpu_gpu_dir)
+
+        if gpu_only_families:
+            print(
+                f"Writing {len(gpu_only_families)} GPU-only chart(s) "
+                f"({', '.join(stem for _, stem in gpu_only_families)}) -> {cpu_gpu_dir}/"
+            )
+            for family_prefix, output_stem in gpu_only_families:
+                plot_gpu_only_family(family_prefix, output_stem, runs, cpu_gpu_dir)
 
     if args.overview or (not args.method and not args.filter):
         overview_suite = resolve_overview_suite(args.suite, run_suites, title_suffix)

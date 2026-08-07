@@ -9,19 +9,19 @@ public class VectorSortTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     static readonly Random Rng = new(17);
 
     [Fact]
-    public void SortAscending_1D_MatchesArraySort()
+    public void SortAscIP_1D_MatchesArraySort()
     {
         float[] data = RandomData(256);
         var vector = CreateVector(data);
         var expected = (float[])data.Clone();
         Array.Sort(expected);
 
-        vector.SortAscending();
+        vector.SortAscIP();
         SyncValues(vector).ShouldBeCloseTo(expected);
     }
 
     [Fact]
-    public void SortDescending_2D_SortsEachRowIndependently()
+    public void SortDescIP_2D_SortsEachRowIndependently()
     {
         int rows = 3;
         int cols = 10;
@@ -30,38 +30,38 @@ public class VectorSortTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var expected = (float[])data.Clone();
         SortRowsReference(expected, rows, cols, SortOrder.Descending);
 
-        vector.SortDescending();
+        vector.SortDescIP();
         SyncValues(vector).ShouldBeCloseTo(expected);
     }
 
     [Fact]
-    public void Sort_SingleRowMatrix_Matches1DVector()
+    public void SortIP_ColumnVector_MatchesFlat1D()
     {
-        float[] data = RandomData(48);
-        var as1D = CreateVector(data);
-        var asMatrix = CreateVector(data, columns: data.Length);
+        float[] data = RandomData(96);
+        var flat = CreateVector(data);
+        var column = CreateVector(data, columns: 1);
 
-        as1D.SortAscending();
-        asMatrix.SortAscending();
+        flat.SortAscIP();
+        column.SortAscIP();
 
-        SyncValues(as1D).ShouldBeCloseTo(SyncValues(asMatrix));
+        SyncValues(flat).ShouldBeCloseTo(SyncValues(column));
     }
 
     [Fact]
-    public void SortAscendingX_MatchesCpuSort_1D()
+    public void SortAscXIP_MatchesCpuSort_1D()
     {
         float[] data = RandomData(512);
         var cpu = CreateVector(data);
         var gpu = CreateVector(data);
 
-        cpu.SortAscending();
-        gpu.SortAscendingX();
+        cpu.SortAscIP();
+        gpu.SortAscXIP();
 
         SyncValues(gpu).ShouldBeCloseTo(SyncValues(cpu));
     }
 
     [Fact]
-    public void SortDescendingX_MatchesCpuSort_2D()
+    public void SortDescXIP_MatchesCpuSort_2D()
     {
         int rows = 4;
         int cols = 12;
@@ -69,10 +69,38 @@ public class VectorSortTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var cpu = CreateVector(data, columns: cols);
         var gpu = CreateVector(data, columns: cols);
 
-        cpu.SortDescending();
-        gpu.SortDescendingX();
+        cpu.SortDescIP();
+        gpu.SortDescXIP();
 
         SyncValues(gpu).ShouldBeCloseTo(SyncValues(cpu));
+    }
+
+    [Fact]
+    public void SortAsc_AllocatingCpu_DoesNotMutateInput_AndReturnsSortedCopy()
+    {
+        float[] data = RandomData(256);
+        var vector = CreateVector(data);
+        var expected = (float[])data.Clone();
+        Array.Sort(expected);
+
+        Vector result = vector.SortAsc();
+
+        SyncValues(vector).ShouldBeCloseTo(data);
+        SyncValues(result).ShouldBeCloseTo(expected);
+    }
+
+    [Fact]
+    public void SortAscX_AllocatingGpu_DoesNotMutateInput_AndReturnsSortedCopy()
+    {
+        float[] data = RandomData(256);
+        var vector = CreateVector(data);
+        var expected = (float[])data.Clone();
+        Array.Sort(expected);
+
+        Vector result = vector.SortAscX();
+
+        SyncValues(vector).ShouldBeCloseTo(data);
+        SyncValues(result).ShouldBeCloseTo(expected);
     }
 
     static float[] RandomData(int length)

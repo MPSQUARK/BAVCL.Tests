@@ -9,27 +9,27 @@ public class ArgsortTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     static readonly Random Rng = new(99);
 
     [Fact]
-    public void ArgsortAscending_1D_DoesNotMutateInput_AndIndicesProduceSortedOrder()
+    public void ArgsortAsc_1D_DoesNotMutateInput_AndIndicesProduceSortedOrder()
     {
         int[] data = RandomIntData(128);
         var vector = CreateVectorInt(data);
         int[] before = SyncValues(vector);
 
-        VectorInt indices = vector.ArgsortAscending();
+        VectorInt indices = vector.ArgsortAsc();
 
         SyncValues(vector).Should().Equal(before);
         AssertArgsortProducesSortedOrder(before, SyncValues(indices), columns: 0, SortOrder.Ascending);
     }
 
     [Fact]
-    public void ArgsortDescending_2D_PerRowIndices()
+    public void ArgsortDesc_2D_PerRowIndices()
     {
         int rows = 3;
         int cols = 6;
         int[] data = RandomIntData(rows * cols);
         var vector = CreateVectorInt(data, columns: cols);
 
-        VectorInt indices = vector.ArgsortDescending();
+        VectorInt indices = vector.ArgsortDesc();
 
         AssertArgsortProducesSortedOrder(data, SyncValues(indices), cols, SortOrder.Descending);
     }
@@ -39,7 +39,7 @@ public class ArgsortTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVectorInt([], cache: false);
 
-        VectorInt indices = vector.ArgsortAscending();
+        VectorInt indices = vector.ArgsortAsc();
 
         indices.Length.Should().Be(0);
     }
@@ -49,52 +49,39 @@ public class ArgsortTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVectorInt([42]);
 
-        VectorInt indices = vector.ArgsortAscending();
+        VectorInt indices = vector.ArgsortAsc();
 
         SyncValues(indices).Should().Equal([0]);
     }
 
     [Fact]
-    public void Argsort_1DAndSingleRowMatrix_ProduceSameIndices()
-    {
-        int[] data = RandomIntData(32);
-        var as1D = CreateVectorInt(data);
-        var asMatrix = CreateVectorInt(data, columns: data.Length);
-
-        int[] idx1D = SyncValues(as1D.ArgsortAscending());
-        int[] idxMatrix = SyncValues(asMatrix.ArgsortAscending());
-
-        idx1D.Should().Equal(idxMatrix);
-    }
-
-    [Fact]
-    public void ArgsortAscendingX_MatchesCpuArgsort_Int()
+    public void ArgsortAscX_MatchesCpuArgsort_Int()
     {
         int[] data = RandomIntData(256);
         var cpu = CreateVectorInt(data);
         var gpu = CreateVectorInt(data);
 
-        int[] expected = SyncValues(cpu.ArgsortAscending());
-        int[] actual = SyncValues(gpu.ArgsortAscendingX());
+        int[] expected = SyncValues(cpu.ArgsortAsc());
+        int[] actual = SyncValues(gpu.ArgsortAscX());
 
         AssertArgsortProducesSortedOrder(data, actual, columns: 0, SortOrder.Ascending);
         AssertArgsortProducesSortedOrder(data, expected, columns: 0, SortOrder.Ascending);
     }
 
     [Fact]
-    public void ArgsortAscendingX_DoesNotMutateInput()
+    public void ArgsortAscX_DoesNotMutateInput()
     {
         float[] data = RandomFloatData(64);
         var vector = CreateVector(data);
         float[] before = SyncValues(vector);
 
-        _ = vector.ArgsortAscendingX();
+        _ = vector.ArgsortAscX();
 
         SyncValues(vector).ShouldBeCloseTo(before);
     }
 
     [Fact]
-    public void ArgsortDescendingX_MatchesCpuArgsort_Float2D()
+    public void ArgsortDescX_MatchesCpuArgsort_Float2D()
     {
         int rows = 2;
         int cols = 20;
@@ -102,11 +89,51 @@ public class ArgsortTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var cpu = CreateVector(data, columns: cols);
         var gpu = CreateVector(data, columns: cols);
 
-        int[] expected = SyncValues(cpu.ArgsortDescending());
-        int[] actual = SyncValues(gpu.ArgsortDescendingX());
+        int[] expected = SyncValues(cpu.ArgsortDesc());
+        int[] actual = SyncValues(gpu.ArgsortDescX());
 
         AssertArgsortProducesSortedOrder(data, actual, cols, SortOrder.Descending);
         AssertArgsortProducesSortedOrder(data, expected, cols, SortOrder.Descending);
+    }
+
+    [Fact]
+    public void ArgsortAscIP_Cpu_WritesIntoCallerBuffer_AndDoesNotMutateInput()
+    {
+        int[] data = RandomIntData(128);
+        var vector = CreateVectorInt(data);
+        var indices = new VectorInt(vector.Gpu, vector.Length, vector.Columns);
+        int[] before = SyncValues(vector);
+
+        vector.ArgsortAscIP(indices);
+
+        SyncValues(vector).Should().Equal(before);
+        AssertArgsortProducesSortedOrder(before, SyncValues(indices), columns: 0, SortOrder.Ascending);
+    }
+
+    [Fact]
+    public void ArgsortAscIP_ShapeMismatch_Throws()
+    {
+        int[] data = RandomIntData(128);
+        var vector = CreateVectorInt(data);
+        var indices = new VectorInt(vector.Gpu, vector.Length - 1, 0);
+
+        Action act = () => vector.ArgsortAscIP(indices);
+
+        act.Should().Throw<BAVCL.Core.Exceptions.ShapeMismatchException>();
+    }
+
+    [Fact]
+    public void ArgsortAscXIP_Gpu_WritesIntoCallerBuffer_AndDoesNotMutateInput()
+    {
+        int[] data = RandomIntData(256);
+        var vector = CreateVectorInt(data);
+        var indices = new VectorInt(vector.Gpu, vector.Length, vector.Columns);
+        int[] before = SyncValues(vector);
+
+        vector.ArgsortAscXIP(indices);
+
+        SyncValues(vector).Should().Equal(before);
+        AssertArgsortProducesSortedOrder(before, SyncValues(indices), columns: 0, SortOrder.Ascending);
     }
 
     static int[] RandomIntData(int length)
