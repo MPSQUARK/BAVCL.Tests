@@ -8,5 +8,7 @@ public sealed class GpuTestFixture
     {
         KernelModuleLoader.Load<float>(Gpu, KernelDomain.Geometry);
         KernelModuleLoader.Load<int>(Gpu, KernelWorkloads.Default);
+        KernelModuleLoader.Load<float>(Gpu, KernelWorkloads.Sorting);
+        KernelModuleLoader.Load<int>(Gpu, KernelWorkloads.Sorting);
     }
 }

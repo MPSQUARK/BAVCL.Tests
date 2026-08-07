@@ -10,6 +10,12 @@ public class SortBenchmarks
 {
 	static readonly GPU Gpu = GPUManager.Default;
 
+	static SortBenchmarks()
+	{
+		KernelModuleLoader.Load<float>(Gpu, KernelWorkloads.Sorting);
+		KernelModuleLoader.Load<int>(Gpu, KernelWorkloads.Sorting);
+	}
+
 	VectorInt _intVector = null!;
 	Vector _floatVector = null!;
 	VectorInt _intMatrix = null!;

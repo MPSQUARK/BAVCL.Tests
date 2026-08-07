@@ -151,6 +151,8 @@ public sealed class TightMemoryGpuFixture : IDisposable
 		var accelerator = BAVCL.GPUManager.GetPreferedAccelerator(forceCPU: false);
 		var memoryManager = new BAVCL.Core.LRU { AvailableMemory = TightBudgetBytes };
 		Gpu = new global::BAVCL.GPU(accelerator, memoryManager);
+		KernelModuleLoader.Load<float>(Gpu, KernelWorkloads.Sorting);
+		KernelModuleLoader.Load<int>(Gpu, KernelWorkloads.Sorting);
 	}
 
 	public void Dispose() => Gpu.Dispose();
