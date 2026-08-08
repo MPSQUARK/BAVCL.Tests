@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
+    <RootNamespace>BAVCL.Tests</RootNamespace>
     <!-- IO tests (Category=IO) skipped by default. Enable with IncludeIOTests=true and filter Category=IO -->
     <VSTestTestCaseFilter Condition="'$(IncludeIOTests)' != 'true'">Category!=IO</VSTestTestCaseFilter>
   </PropertyGroup>
@@ -33,6 +34,16 @@
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <!-- IDE0130: namespaces are rooted at Tests/, not the repo directory that contains this csproj. -->
+  <PropertyGroup>
+    <ProjectDir>$(MSBuildProjectDirectory)\Tests\</ProjectDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="RootNamespace" />
+    <CompilerVisibleProperty Include="ProjectDir" />
   </ItemGroup>
 
 </Project>
