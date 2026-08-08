@@ -29,10 +29,10 @@ public class VectorMatrixOpsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
         Vector result = op switch
         {
-            Operations.add => a.MatrixAdd(b),
-            Operations.subtract => a.MatrixSubtract(b),
-            Operations.divide => a.MatrixDivide(b),
-            Operations.pow => a.MatrixPow(b),
+            Operations.add => a.MatrixAddX(b),
+            Operations.subtract => a.MatrixSubtractX(b),
+            Operations.divide => a.MatrixDivideX(b),
+            Operations.pow => a.MatrixPowX(b),
             _ => throw new ArgumentOutOfRangeException(nameof(op))
         };
 
@@ -45,7 +45,7 @@ public class VectorMatrixOpsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = BavclShape.Create(Gpu, [2, 3], BroadcastReference.SequentialData(2, 3));
         var b = BavclShape.Create(Gpu, [3, 2], BroadcastReference.SequentialData(3, 2));
 
-        Action act = () => a.MatrixAdd(b);
+        Action act = () => a.MatrixAddX(b);
 
         act.Should().Throw<ShapeMismatchException>();
     }
@@ -59,8 +59,8 @@ public class VectorMatrixOpsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
             BroadcastReference.SequentialData(2, 3, 1f, 1f), 2, 3,
             BroadcastReference.SequentialData(3, 2, 2f, 0.5f), 3, 2);
 
-        var cross = a.Cross(b);
-        var matmul = a.MatrixMultiply(b);
+        var cross = a.CrossX(b);
+        var matmul = a.MatrixMultiplyX(b);
 
         BavclShape.ShouldMatchNumpyShape(cross, [2, 2], expected);
         BavclShape.ShouldMatchNumpyShape(matmul, [2, 2], expected);
@@ -72,7 +72,7 @@ public class VectorMatrixOpsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var vector = BavclShape.Create(Gpu, [3], BroadcastReference.SequentialData(3));
         var matrix = BavclShape.Create(Gpu, [2, 3], BroadcastReference.SequentialData(2, 3));
 
-        Action act = () => vector.MatrixAdd(matrix);
+        Action act = () => vector.MatrixAddX(matrix);
 
         act.Should().Throw<ShapeMismatchException>();
     }

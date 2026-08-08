@@ -26,7 +26,7 @@ public class VectorSliceTests : GpuTestBase
     [Fact]
     public void GetColumnAsVector_ReturnsVector()
     {
-        var column = _matrix.GetColumnAsVector(2);
+        var column = _matrix.GetColumnAsVectorX(2);
 
         column.Length.Should().Be(3);
         SyncValues(column).ShouldBeCloseTo([3f, 8f, 13f]);
@@ -44,7 +44,7 @@ public class VectorSliceTests : GpuTestBase
     [Fact]
     public void GetSliceAsVector_Column_ReturnsSlice()
     {
-        var slice = _matrix.GetSliceAsVector(3, Axis.Column);
+        var slice = _matrix.GetSliceAsVectorX(3, Axis.Column);
 
         SyncValues(slice).ShouldBeCloseTo([4f, 9f, 14f]);
     }

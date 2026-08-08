@@ -44,7 +44,7 @@ public class VectorIndexingTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector(VectorFactory.Matrix3x5, columns: 5);
 
-        var column = vector.GetSliceAsArray(1, Axis.Column);
+        var column = vector.GetSliceAsArrayX(1, Axis.Column);
 
         column.ShouldBeCloseTo([2f, 7f, 12f]);
     }

@@ -20,7 +20,7 @@ public class VectorStructuralBenchmarks
 		_matrix = new Vector(_gpu, Enumerable.Range(0, matrixLength).Select(i => (float)i).ToArray(), columns: side, cache: true);
 	}
 
-	[Benchmark] public Vector Transpose() => Vector.Transpose(_matrix);
+	[Benchmark] public Vector TransposeX() => Vector.TransposeX(_matrix);
 	[Benchmark] public float Dot() => Vector.Dot(_vector, _vector);
 	[Benchmark] public Vector Concat() => Vector.Concat(_vector, _vector);
 }

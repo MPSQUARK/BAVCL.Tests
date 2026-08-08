@@ -41,8 +41,8 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
 		SyncMaskBits(vector > other).Should().Equal([true, false, false, false]);
 		SyncMaskBits(vector >= other).Should().Equal([true, true, false, true]);
-		SyncMaskBits(vector.CompareEquals(other)).Should().Equal([false, true, false, true]);
-		SyncMaskBits(vector.CompareNotEquals(other)).Should().Equal([true, false, true, false]);
+		SyncMaskBits(vector.CompareEqualsX(other)).Should().Equal([false, true, false, true]);
+		SyncMaskBits(vector.CompareNotEqualsX(other)).Should().Equal([true, false, true, false]);
 	}
 
 	[Fact]
@@ -51,7 +51,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		Vector vector = CreateVector([0.5f, 1.5f, 2.5f]);
 
 		SyncMaskBits(vector > 1f).Should().Equal([false, true, true]);
-		SyncMaskBits(vector.CompareEquals(1.5f)).Should().Equal([false, true, false]);
+		SyncMaskBits(vector.CompareEqualsX(1.5f)).Should().Equal([false, true, false]);
 	}
 
 	[Fact]
@@ -60,7 +60,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		Vector a = CreateVector([float.NaN, 1f]);
 		Vector b = CreateVector([float.NaN, 2f]);
 
-		SyncMaskBits(a.CompareEquals(b)).Should().Equal([true, false]);
+		SyncMaskBits(a.CompareEqualsX(b)).Should().Equal([true, false]);
 		SyncMaskBits(a > b).Should().Equal([false, false]);
 	}
 
@@ -85,7 +85,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
 		float[] viaOp = SyncValues(vector | mask);
 		float[] viaIndexer = SyncValues(vector[mask]);
-		float[] viaMethod = SyncValues(vector.Filter(mask));
+		float[] viaMethod = SyncValues(vector.FilterX(mask));
 
 		viaOp.Should().Equal([10f, 30f]);
 		viaIndexer.Should().Equal([10f, 30f]);
@@ -112,7 +112,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		Mask mask = CreateMask([true, false, true, false]);
 
 		(Vector opTrue, Vector opFalse) = vector / mask;
-		(Vector methodTrue, Vector methodFalse) = vector.Partition(mask);
+		(Vector methodTrue, Vector methodFalse) = vector.PartitionX(mask);
 
 		SyncValues(methodTrue).ShouldBeCloseTo(SyncValues(opTrue));
 		SyncValues(methodFalse).ShouldBeCloseTo(SyncValues(opFalse));
@@ -124,7 +124,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		Vector vector = CreateVector([1f, 2f, 3f]);
 		Mask mask = CreateMask([true, true, true]);
 
-		(Vector trueLanes, Vector falseLanes) = vector.Partition(mask);
+		(Vector trueLanes, Vector falseLanes) = vector.PartitionX(mask);
 
 		SyncValues(trueLanes).ShouldBeCloseTo([1f, 2f, 3f]);
 		falseLanes.Length.Should().Be(0);
@@ -137,7 +137,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		Vector vector = CreateVector([1f, 2f, 3f]);
 		Mask mask = CreateMask([false, false, false]);
 
-		(Vector trueLanes, Vector falseLanes) = vector.Partition(mask);
+		(Vector trueLanes, Vector falseLanes) = vector.PartitionX(mask);
 
 		trueLanes.Length.Should().Be(0);
 		trueLanes.Columns.Should().Be(0);
@@ -150,7 +150,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		Vector vector = CreateVector([1f, 2f, 3f, 4f], columns: 2);
 		Mask mask = CreateMask([true, false], columns: 0);
 
-		(Vector trueLanes, Vector falseLanes) = vector.Partition(mask);
+		(Vector trueLanes, Vector falseLanes) = vector.PartitionX(mask);
 
 		SyncValues(trueLanes).ShouldBeCloseTo([1f, 3f]);
 		SyncValues(falseLanes).ShouldBeCloseTo([2f, 4f]);
@@ -239,7 +239,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
 		SyncMaskBits(vector > other).Should().Equal([true, false, false, false]);
 		SyncMaskBits(vector >= other).Should().Equal([true, true, false, true]);
-		SyncMaskBits(vector.CompareEquals(other)).Should().Equal([false, true, false, true]);
+		SyncMaskBits(vector.CompareEqualsX(other)).Should().Equal([false, true, false, true]);
 	}
 
 	[Fact]
@@ -291,7 +291,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		Mask mask = CreateMask([true, false, true, false]);
 
 		(VectorInt opTrue, VectorInt opFalse) = vector / mask;
-		(VectorInt methodTrue, VectorInt methodFalse) = vector.Partition(mask);
+		(VectorInt methodTrue, VectorInt methodFalse) = vector.PartitionX(mask);
 
 		SyncValues(methodTrue).Should().Equal(SyncValues(opTrue));
 		SyncValues(methodFalse).Should().Equal(SyncValues(opFalse));
@@ -303,7 +303,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		VectorInt vector = CreateVectorInt([1, 2, 3]);
 		Mask mask = CreateMask([true, true, true]);
 
-		(VectorInt trueLanes, VectorInt falseLanes) = vector.Partition(mask);
+		(VectorInt trueLanes, VectorInt falseLanes) = vector.PartitionX(mask);
 
 		SyncValues(trueLanes).Should().Equal([1, 2, 3]);
 		falseLanes.Length.Should().Be(0);
@@ -316,7 +316,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		VectorInt vector = CreateVectorInt([1, 2, 3]);
 		Mask mask = CreateMask([false, false, false]);
 
-		(VectorInt trueLanes, VectorInt falseLanes) = vector.Partition(mask);
+		(VectorInt trueLanes, VectorInt falseLanes) = vector.PartitionX(mask);
 
 		trueLanes.Length.Should().Be(0);
 		trueLanes.Columns.Should().Be(0);
@@ -329,7 +329,7 @@ public class MaskOperationsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		VectorInt vector = CreateVectorInt([1, 2, 3, 4], columns: 2);
 		Mask mask = CreateMask([true, false], columns: 0);
 
-		(VectorInt trueLanes, VectorInt falseLanes) = vector.Partition(mask);
+		(VectorInt trueLanes, VectorInt falseLanes) = vector.PartitionX(mask);
 
 		SyncValues(trueLanes).Should().Equal([1, 3]);
 		SyncValues(falseLanes).Should().Equal([2, 4]);

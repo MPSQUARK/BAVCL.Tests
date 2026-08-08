@@ -10,7 +10,7 @@ public class VectorStructuralTests(GpuTestFixture fixture) : GpuTestBase(fixture
     {
         var vector = CreateVector(VectorFactory.Matrix3x5, columns: 5);
 
-        var result = vector.Transpose();
+        var result = vector.TransposeX();
 
         result.Columns.Should().Be(3);
         result.RowCount().Should().Be(5);

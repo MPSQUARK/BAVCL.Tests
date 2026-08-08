@@ -19,7 +19,7 @@ public class Vector3GeometryBenchmarks
 		_b = new Vector3(_gpu, values.Select(v => v + 1f).ToArray(), cache: true);
 	}
 
-	[Benchmark] public Vector3 Cross() => Vector3.Cross(_a, _b);
-	[Benchmark] public Vector Magnitude() => Vector3.Magnitude(_a);
-	[Benchmark] public Vector Distance() => Vector3.Distance(_a, _b);
+	[Benchmark] public Vector3 CrossX() => Vector3.CrossX(_a, _b);
+	[Benchmark] public Vector MagnitudeX() => Vector3.MagnitudeX(_a);
+	[Benchmark] public Vector DistanceX() => Vector3.DistanceX(_a, _b);
 }

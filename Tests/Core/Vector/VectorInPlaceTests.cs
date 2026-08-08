@@ -9,7 +9,7 @@ public class VectorInPlaceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([.. VectorFactory.MixedSigns]);
 
-        vector.Abs_IP();
+        vector.AbsIP();
         vector.SyncCPU();
 
         vector.Value.ShouldBeCloseTo(CpuReference.Abs(VectorFactory.MixedSigns));
@@ -43,7 +43,7 @@ public class VectorInPlaceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([2f, 2f, 2f]);
 
-        vector.Normalise_IP();
+        vector.NormaliseXIP();
         vector.SyncCPU();
 
         vector.Sum().ShouldBeCloseTo(1f, 1e-3f);

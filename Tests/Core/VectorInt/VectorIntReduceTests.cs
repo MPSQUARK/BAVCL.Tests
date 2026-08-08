@@ -8,7 +8,7 @@ public class VectorIntReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Theory]
     [InlineData(Operations.add)]
     [InlineData(Operations.multiply)]
-    public void ReduceOP_1DWithMatrix_MatchesRowReduction(Operations op)
+    public void ReduceOPX_1DWithMatrix_MatchesRowReduction(Operations op)
     {
         int rows = 2;
         int cols = 3;
@@ -19,7 +19,7 @@ public class VectorIntReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
         var expected = RowReduceReference(coeff, matrix, rows, cols, op);
 
-        var result = vector.ReduceOP(mat, op);
+        var result = vector.ReduceOPX(mat, op);
 
         result.Length.Should().Be(rows);
         result.Columns.Should().Be(1);
@@ -27,23 +27,23 @@ public class VectorIntReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     }
 
     [Fact]
-    public void ReduceOP_UnequalCoefficientLength_ThrowsLengthMismatch()
+    public void ReduceOPX_UnequalCoefficientLength_ThrowsLengthMismatch()
     {
         var vector = BavclShapeInt.Create(Gpu, [3], [1, 2, 3]);
         var matrix = BavclShapeInt.Create(Gpu, [2, 4], [1, 2, 3, 4, 5, 6, 7, 8]);
 
-        Action act = () => vector.ReduceOP(matrix, Operations.add);
+        Action act = () => vector.ReduceOPX(matrix, Operations.add);
 
         act.Should().Throw<LengthMismatchException>();
     }
 
     [Fact]
-    public void ReduceOP_MatrixOnLeft_ThrowsShapeMismatch()
+    public void ReduceOPX_MatrixOnLeft_ThrowsShapeMismatch()
     {
         var vector = BavclShapeInt.Create(Gpu, [3], [1, 2, 3]);
         var matrix = BavclShapeInt.Create(Gpu, [2, 3], [1, 2, 3, 4, 5, 6]);
 
-        Action act = () => matrix.ReduceOP(vector, Operations.add);
+        Action act = () => matrix.ReduceOPX(vector, Operations.add);
 
         act.Should().Throw<ShapeMismatchException>();
     }

@@ -46,7 +46,7 @@ public class VectorIntIndexingTests(GpuTestFixture fixture) : GpuTestBase(fixtur
     {
         var vector = CreateVectorInt(VectorIntFactory.Matrix3x5, columns: 5);
 
-        vector.GetSliceAsArray(1, Axis.Column).Should().Equal([2, 7, 12]);
+        vector.GetSliceAsArrayX(1, Axis.Column).Should().Equal([2, 7, 12]);
     }
 
     [Fact]

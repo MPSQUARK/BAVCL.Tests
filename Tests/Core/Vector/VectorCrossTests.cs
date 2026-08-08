@@ -19,7 +19,7 @@ public class VectorCrossTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var b = BavclShape.Create(Gpu, [k, n], bData);
         var expected = BroadcastReference.MatMul(aData, m, k, bData, k, n);
 
-        var result = a.Cross(b);
+        var result = a.CrossX(b);
 
         BavclShape.ShouldMatchNumpyShape(result, [m, n], expected);
     }
@@ -35,7 +35,7 @@ public class VectorCrossTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var b = BavclShape.Create(Gpu, [k, 1], bData);
         var expected = BroadcastReference.MatMulVector(aData, m, k, bData);
 
-        var result = a.Cross(b);
+        var result = a.CrossX(b);
 
         result.Length.Should().Be(m);
         result.Columns.Should().Be(1);
@@ -54,7 +54,7 @@ public class VectorCrossTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var b = BavclShape.Create(Gpu, [k, n], bData);
         var expected = BroadcastReference.MatMul(aData, 1, k, bData, k, n);
 
-        var result = a.Cross(b);
+        var result = a.CrossX(b);
 
         BavclShape.ShouldMatchNumpyShape(result, [1, n], expected);
     }
@@ -68,7 +68,7 @@ public class VectorCrossTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var vector = BavclShape.Create(Gpu, [3, 1], vecData);
         var expected = BroadcastReference.MatMulVector(matrixData, 2, 3, vecData);
 
-        var result = matrix.Cross(vector);
+        var result = matrix.CrossX(vector);
 
         result.Length.Should().Be(2);
         SyncValues(result).ShouldBeCloseTo(expected);
@@ -80,7 +80,7 @@ public class VectorCrossTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = BavclShape.Create(Gpu, [2, 3], BroadcastReference.SequentialData(2, 3));
         var b = BavclShape.Create(Gpu, [2, 2], BroadcastReference.SequentialData(2, 2));
 
-        Action act = () => _ = a.Cross(b);
+        Action act = () => _ = a.CrossX(b);
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*inner dimensions*");
@@ -94,7 +94,7 @@ public class VectorCrossTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = BavclShape.Create(Gpu, [2, 2], aData);
         var b = BavclShape.Create(Gpu, [2, 2], bData);
 
-        var result = a.Cross(b);
+        var result = a.CrossX(b);
         var expected = BroadcastReference.MatMul(aData, 2, 2, bData, 2, 2);
 
         BavclShape.ShouldMatchNumpyShape(result, [2, 2], expected);

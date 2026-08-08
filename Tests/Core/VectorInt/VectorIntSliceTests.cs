@@ -21,7 +21,7 @@ public class VectorIntSliceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void GetColumnAsVector_ReturnsVector()
     {
-        var column = _matrix.GetColumnAsVector(2);
+        var column = _matrix.GetColumnAsVectorX(2);
 
         column.Length.Should().Be(3);
         SyncValues(column).Should().Equal([3, 8, 13]);
@@ -39,7 +39,7 @@ public class VectorIntSliceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void GetSliceAsVector_Column_ReturnsSlice()
     {
-        var slice = _matrix.GetSliceAsVector(3, Axis.Column);
+        var slice = _matrix.GetSliceAsVectorX(3, Axis.Column);
 
         SyncValues(slice).Should().Equal([4, 9, 14]);
     }

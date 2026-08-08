@@ -4,14 +4,14 @@ using BAVCL.Tests.Helpers;
 namespace BAVCL.Tests.Core.VectorTests;
 
 /// <summary>
-/// ReduceOP uses reduceRowOpKernel: one output per matrix row, not NumPy broadcast.
+/// ReduceOPX uses reduceRowOpKernel: one output per matrix row, not NumPy broadcast.
 /// </summary>
 public class VectorReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 {
     [Theory]
     [InlineData(Operations.add)]
     [InlineData(Operations.multiply)]
-    public void ReduceOP_1DWithMatrix_MatchesRowReduction(Operations op)
+    public void ReduceOPX_1DWithMatrix_MatchesRowReduction(Operations op)
     {
         int rows = 2;
         int cols = 3;
@@ -22,7 +22,7 @@ public class VectorReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
         var expected = RowReduceReference(coeff, matrix, rows, cols, op);
 
-        var result = vector.ReduceOP(mat, op);
+        var result = vector.ReduceOPX(mat, op);
 
         result.Length.Should().Be(rows);
         result.Columns.Should().Be(1);
@@ -30,23 +30,23 @@ public class VectorReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     }
 
     [Fact]
-    public void ReduceOP_UnequalCoefficientLength_ThrowsLengthMismatch()
+    public void ReduceOPX_UnequalCoefficientLength_ThrowsLengthMismatch()
     {
         var vector = BavclShape.Create(Gpu, [3], BroadcastReference.SequentialData(3));
         var matrix = BavclShape.Create(Gpu, [2, 4], BroadcastReference.SequentialData(2, 4));
 
-        Action act = () => vector.ReduceOP(matrix, Operations.add);
+        Action act = () => vector.ReduceOPX(matrix, Operations.add);
 
         act.Should().Throw<LengthMismatchException>();
     }
 
     [Fact]
-    public void ReduceOP_MatrixOnLeft_ThrowsShapeMismatch()
+    public void ReduceOPX_MatrixOnLeft_ThrowsShapeMismatch()
     {
         var vector = BavclShape.Create(Gpu, [3], BroadcastReference.SequentialData(3));
         var matrix = BavclShape.Create(Gpu, [2, 3], BroadcastReference.SequentialData(2, 3));
 
-        Action act = () => matrix.ReduceOP(vector, Operations.add);
+        Action act = () => matrix.ReduceOPX(vector, Operations.add);
 
         act.Should().Throw<ShapeMismatchException>();
     }
@@ -60,7 +60,7 @@ public class VectorReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var broadcast = coeff + matrix;
         broadcast.Length.Should().Be(6);
 
-        var reduced = coeff.ReduceOP(matrix, Operations.add);
+        var reduced = coeff.ReduceOPX(matrix, Operations.add);
         reduced.Length.Should().Be(2);
     }
 

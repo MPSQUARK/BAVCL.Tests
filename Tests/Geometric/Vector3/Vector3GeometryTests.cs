@@ -12,7 +12,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [1f, 0f, 0f]);
         var b = new Vector3(Gpu, [0f, 1f, 0f]);
 
-        var result = a.Cross(b);
+        var result = a.CrossX(b);
 
         result.SyncCPU();
         result.Value.ShouldBeCloseTo([0f, 0f, 1f]);
@@ -23,7 +23,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vec = new Vector3(Gpu, [3f, 4f, 0f]);
 
-        var magnitudes = vec.Magnitude();
+        var magnitudes = vec.MagnitudeX();
 
         magnitudes.SyncCPU();
         magnitudes.Value[0].ShouldBeCloseTo(5f);
@@ -35,7 +35,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [0f, 0f, 0f]);
         var b = new Vector3(Gpu, [3f, 4f, 0f]);
 
-        var distances = a.Distance(b);
+        var distances = a.DistanceX(b);
 
         distances.SyncCPU();
         distances.Value[0].ShouldBeCloseTo(5f);
@@ -47,7 +47,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [1f, 0f, 0f]);
         var b = new Vector3(Gpu, [0f, 1f, 0f]);
 
-        var result = a.Dot(b);
+        var result = a.DotX(b);
 
         result.SyncCPU();
         result.Value[0].ShouldBeCloseTo(0f);
@@ -58,7 +58,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vec = new Vector3(Gpu, [3f, 4f, 0f]);
 
-        var result = vec.Dot(vec);
+        var result = vec.DotX(vec);
 
         result.SyncCPU();
         result.Value[0].ShouldBeCloseTo(25f);
@@ -70,7 +70,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
         var b = new Vector3(Gpu, [7f, 8f, 9f, 1f, 0f, 0f]);
 
-        var result = a.Dot(b);
+        var result = a.DotX(b);
 
         result.SyncCPU();
         result.Value[0].ShouldBeCloseTo(50f);
@@ -83,7 +83,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [1f, 2f, 3f]);
         var b = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
 
-        var act = () => a.Dot(b);
+        var act = () => a.DotX(b);
 
         act.Should().Throw<LengthMismatchException>()
             .WithMessage("*Dot*");
@@ -95,8 +95,8 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
         var b = new Vector3(Gpu, [7f, 8f, 9f, 1f, 0f, 0f]);
 
-        var staticResult = Vector3.Dot(a, b);
-        var instanceResult = a.Dot(b);
+        var staticResult = Vector3.DotX(a, b);
+        var instanceResult = a.DotX(b);
 
         staticResult.SyncCPU();
         instanceResult.SyncCPU();
@@ -109,7 +109,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [1f, 2f, 3f]);
         var b = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f]);
 
-        var act = () => a.Magnitude(b);
+        var act = () => a.MagnitudeX(b);
 
         act.Should().Throw<LengthMismatchException>()
             .WithMessage("*Magnitude*");
@@ -121,7 +121,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = new Vector3(Gpu, [1f, 2f, 3f]);
         var b = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f]);
 
-        var act = () => a.Distance(b);
+        var act = () => a.DistanceX(b);
 
         act.Should().Throw<LengthMismatchException>()
             .WithMessage("*Distance*");
@@ -133,7 +133,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var vec = new Vector3(Gpu, [1f, 2f, 3f]);
         float invMagnitude = 1f / MathF.Sqrt(14f);
 
-        var result = vec.Normalise();
+        var result = vec.NormaliseX();
 
         result.SyncCPU();
         result.Value.ShouldBeCloseTo([invMagnitude, 2f * invMagnitude, 3f * invMagnitude]);
@@ -144,7 +144,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vec = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f]);
 
-        var result = Vector3.Normalise(vec);
+        var result = Vector3.NormaliseX(vec);
 
         float invMag0 = 1f / MathF.Sqrt(14f);
         float invMag1 = 1f / MathF.Sqrt(77f);
@@ -166,8 +166,8 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vec = new Vector3(Gpu, [1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f]);
 
-        var normalised = vec.Normalise();
-        var magnitudes = normalised.Magnitude();
+        var normalised = vec.NormaliseX();
+        var magnitudes = normalised.MagnitudeX();
 
         magnitudes.SyncCPU();
         for (int row = 0; row < vec.Length / 3; row++)
@@ -177,7 +177,7 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     [Fact]
     public void Normalise_ZeroVector_ProducesNaN()
     {
-        var result = new Vector3(Gpu, [0f, 0f, 0f]).Normalise();
+        var result = new Vector3(Gpu, [0f, 0f, 0f]).NormaliseX();
 
         result.SyncCPU();
         result.Value.Should().AllSatisfy(v => float.IsNaN(v).Should().BeTrue());
@@ -188,8 +188,8 @@ public class Vector3GeometryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vec = new Vector3(Gpu, [3f, 4f, 0f, 1f, 1f, 1f]);
 
-        var staticResult = Vector3.Normalise(vec);
-        var instanceResult = vec.Normalise();
+        var staticResult = Vector3.NormaliseX(vec);
+        var instanceResult = vec.NormaliseX();
 
         staticResult.SyncCPU();
         instanceResult.SyncCPU();

@@ -18,6 +18,6 @@ public class VectorUnaryBenchmarks
 
 	[Benchmark] public Vector AbsX() => Vector.AbsX(_data);
 	[Benchmark] public Vector ReverseX() => Vector.ReverseX(_data);
-	[Benchmark] public Vector Diff() => Vector.Diff(_data);
-	[Benchmark] public Vector NanToNum() => Vector.Nan_to_num(_data, 0f);
+	[Benchmark] public Vector DiffX() => Vector.DiffX(_data);
+	[Benchmark] public Vector NanToNum() => Vector.NanToNumX(_data, 0f);
 }

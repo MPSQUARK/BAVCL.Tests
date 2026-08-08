@@ -77,7 +77,7 @@ public class VectorIntTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var coeffs = CreateVectorInt([1, 1]);
         var matrix = CreateVectorInt([1, 2, 3, 4, 5, 6], columns: 2);
 
-        Action reduce = () => coeffs.ReduceOP(matrix, Operations.bitwiseXor);
+        Action reduce = () => coeffs.ReduceOPX(matrix, Operations.bitwiseXor);
         reduce.Should().Throw<UnsupportedOperationException>();
     }
 
@@ -211,7 +211,7 @@ public class VectorIntTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var other = CreateVectorInt([0, 2, 5, 4]);
 
         SyncMaskBits(vector > other).Should().Equal([true, false, false, false]);
-        SyncMaskBits(vector.CompareEquals(other)).Should().Equal([false, true, false, true]);
+        SyncMaskBits(vector.CompareEqualsX(other)).Should().Equal([false, true, false, true]);
     }
 
     [Fact]
@@ -222,7 +222,7 @@ public class VectorIntTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
         SyncValues(vector & mask).Should().Equal([1, 0, 3, 0]);
         SyncValues(vector & (mask, -1)).Should().Equal([1, -1, 3, -1]);
-        SyncValues(vector.Mask(mask, -1)).Should().Equal([1, -1, 3, -1]);
+        SyncValues(vector.MaskX(mask, -1)).Should().Equal([1, -1, 3, -1]);
     }
 
     [Fact]
@@ -232,7 +232,7 @@ public class VectorIntTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var mask = CreateMask([true, false, true, false]);
 
         SyncValues(vector | mask).Should().Equal([10, 30]);
-        SyncValues(vector.Filter(mask)).Should().Equal([10, 30]);
+        SyncValues(vector.FilterX(mask)).Should().Equal([10, 30]);
         SyncValues(vector[mask]).Should().Equal([10, 30]);
     }
 
@@ -331,7 +331,7 @@ public class VectorIntTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVectorInt([1, 3, 6, 10]);
 
-        SyncValues(vector.Diff()).Should().Equal([2, 3, 4]);
+        SyncValues(vector.DiffX()).Should().Equal([2, 3, 4]);
     }
 
     [Fact]
@@ -369,7 +369,7 @@ public class VectorIntTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var a = CreateVectorInt([1, 2, 3, 4], columns: 2);
         var b = CreateVectorInt([5, 6, 7, 8], columns: 2);
 
-        SyncValues(a.MatrixMultiply(b)).Should().Equal([19, 22, 43, 50]);
+        SyncValues(a.MatrixMultiplyX(b)).Should().Equal([19, 22, 43, 50]);
     }
 
     [Fact]

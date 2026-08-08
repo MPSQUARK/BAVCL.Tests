@@ -61,7 +61,7 @@ public class VectorDotProductTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var b = BavclShape.Create(Gpu, [3, 2], bData);
 
         var rowVec = a.GetRowAsVector(row);
-        var colVec = b.GetColumnAsVector(col);
+        var colVec = b.GetColumnAsVectorX(col);
         float[] rowData = a.GetRowAsArray(row);
         float[] colData = b.GetColumnAsArray(col);
 

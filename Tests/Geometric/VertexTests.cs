@@ -92,7 +92,7 @@ public class VertexTests
     public void UnitVector_NormalizesToLengthOne()
     {
         var vertex = new Vertex(3f, 4f, 0f);
-        vertex.UnitVector_IP();
+        vertex.UnitVectorIP();
 
         vertex.Magnitude().ShouldBeCloseTo(1f);
     }

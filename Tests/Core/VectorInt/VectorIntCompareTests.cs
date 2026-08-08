@@ -14,8 +14,8 @@ public class VectorIntCompareTests(GpuTestFixture fixture) : GpuTestBase(fixture
         SyncMaskBits(vector >= other).Should().Equal([true, true, false, true]);
         SyncMaskBits(vector < other).Should().Equal([false, false, true, false]);
         SyncMaskBits(vector <= other).Should().Equal([false, true, true, true]);
-        SyncMaskBits(vector.CompareEquals(other)).Should().Equal([false, true, false, true]);
-        SyncMaskBits(vector.CompareNotEquals(other)).Should().Equal([true, false, true, false]);
+        SyncMaskBits(vector.CompareEqualsX(other)).Should().Equal([false, true, false, true]);
+        SyncMaskBits(vector.CompareNotEqualsX(other)).Should().Equal([true, false, true, false]);
     }
 
     [Fact]
@@ -27,6 +27,6 @@ public class VectorIntCompareTests(GpuTestFixture fixture) : GpuTestBase(fixture
         SyncMaskBits(vector >= 1).Should().Equal([false, true, true]);
         SyncMaskBits(vector < 1).Should().Equal([true, false, false]);
         SyncMaskBits(vector <= 1).Should().Equal([true, true, false]);
-        SyncMaskBits(vector.CompareEquals(1)).Should().Equal([false, true, false]);
+        SyncMaskBits(vector.CompareEqualsX(1)).Should().Equal([false, true, false]);
     }
 }

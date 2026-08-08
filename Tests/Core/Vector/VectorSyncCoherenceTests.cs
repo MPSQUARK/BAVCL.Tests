@@ -26,7 +26,7 @@ public class VectorSyncCoherenceTests(GpuTestFixture fixture) : GpuTestBase(fixt
         var left = CreateVector([1f, 2f, 3f]);
         var right = CreateVector([4f, 5f, 6f]);
 
-        left.Append_IP(right);
+        left.AppendIP(right);
 
         left.Length.Should().Be(6);
         left.ToArray().ShouldBeCloseTo([1f, 2f, 3f, 4f, 5f, 6f]);

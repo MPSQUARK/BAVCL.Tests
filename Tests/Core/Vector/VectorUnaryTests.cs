@@ -51,7 +51,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([2f, 4f, 5f]);
 
-        var result = vector.Reciprocal();
+        var result = vector.ReciprocalX();
 
         SyncValues(result).ShouldBeCloseTo([0.5f, 0.25f, 0.2f]);
     }
@@ -119,7 +119,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector([1f, 3f, 6f, 10f]);
 
-        var result = vector.Diff();
+        var result = vector.DiffX();
 
         SyncValues(result).ShouldBeCloseTo([2f, 3f, 4f]);
     }
@@ -129,7 +129,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var vector = CreateVector(VectorFactory.EdgeNaNInf);
 
-        var result = vector.Nan_to_num(-1f);
+        var result = vector.NanToNumX(-1f);
 
         SyncValues(result).ShouldBeCloseTo([-1f, -1f, -1f, 0f]);
     }
@@ -140,7 +140,7 @@ public class VectorUnaryTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         var vector = CreateVector([1f, 10f, 100f]);
         var copy = vector.Copy();
 
-        copy.Log_IP(10f);
+        copy.LogXIP(10f);
 
         SyncValues(copy).ShouldBeCloseTo([0f, 1f, 2f], tolerance: 1e-3f);
     }

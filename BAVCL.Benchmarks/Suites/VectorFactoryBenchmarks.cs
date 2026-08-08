@@ -30,9 +30,9 @@ public class VectorFactoryBenchmarks
 	[Benchmark] public Vector Append() => Vector.Append(_left, _right);
 
 	[Benchmark]
-	public Vector Append_IP() => _appendTarget.Append_IP(_right);
+	public Vector AppendIP() => _appendTarget.AppendIP(_right);
 
-	[IterationSetup(Target = nameof(Append_IP))]
+	[IterationSetup(Target = nameof(AppendIP))]
 	public void ResetAppendTarget()
 	{
 		int half = Math.Max(1, N / 2);
