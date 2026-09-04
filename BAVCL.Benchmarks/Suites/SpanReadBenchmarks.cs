@@ -21,7 +21,6 @@ public class SpanReadBenchmarks
 	}
 
 	[Benchmark] public float RetrieveReadOnlySpan() => Sum(_vector.RetrieveReadOnlySpan());
-	[Benchmark] public float GetCpuReadOnlySpan() => Sum(_vector.GetCpuReadOnlySpan());
 	[Benchmark] public float ToArray() => Sum(_vector.ToArray());
 
 	static float Sum(ReadOnlySpan<float> data)

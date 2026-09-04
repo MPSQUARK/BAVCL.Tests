@@ -11,6 +11,13 @@ internal static class Program
 {
 	static void Main(string[] args)
 	{
+		if (args.Contains("--sum-accuracy-report"))
+		{
+			SumStrategyAccuracyReport.Print();
+			SumStrategyAccuracyReport.Print(10_000);
+			return;
+		}
+
 		string scope = BenchmarkConfig.DeriveScopeFromArgs(args);
 		string reportPath = BenchmarkConfig.CreateRunReportPath(scope);
 		Directory.CreateDirectory(BenchmarkConfig.GetArtifactsPath());
