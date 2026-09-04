@@ -1,4 +1,5 @@
 using BAVCL.Core.Exceptions;
+using BAVCL.Modules.Arithmetic;
 using BAVCL.Tests.Helpers;
 
 namespace BAVCL.Tests.Core.VectorTests;
@@ -19,7 +20,7 @@ public class VectorDotProductTests(GpuTestFixture fixture) : GpuTestBase(fixture
         var vectorB = CreateVector(b);
 
         vectorA.Dot(vectorB).ShouldBeCloseTo(expected);
-        vectorA.Dot(vectorB).ShouldBeCloseTo(expected);
+        vectorA.DotX(vectorB).ShouldBeCloseTo(expected, 1e-4f);
         expected.ShouldBeCloseTo(BroadcastReference.InnerProduct(a, b));
     }
 
@@ -33,7 +34,7 @@ public class VectorDotProductTests(GpuTestFixture fixture) : GpuTestBase(fixture
         float expected = data.Sum() * scalar;
 
         vector.Dot(scalar).ShouldBeCloseTo(expected);
-        vector.Dot(scalar).ShouldBeCloseTo(expected);
+        vector.DotX(scalar).ShouldBeCloseTo(expected, 1e-4f);
     }
 
     [Fact]

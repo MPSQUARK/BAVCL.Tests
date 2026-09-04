@@ -46,6 +46,25 @@ public class VectorSyncCoherenceTests(GpuTestFixture fixture) : GpuTestBase(fixt
     }
 
     [Fact]
+    public void UpdateCache_LruResizeViaCpuAuthority_ReallocatesGpuBuffer()
+    {
+        using global::BAVCL.GPU lruGpu = GPUManager.GetGPU<BAVCL.Core.LRU>();
+        var vector = new Vector(lruGpu, [1f, 2f, 3f]);
+        vector.ID.Should().NotBe(0u);
+
+        float[] expanded = [10f, 20f, 30f, 40f];
+        vector.Residence = Residence.Cpu;
+        vector.Value = expanded;
+        vector.Length = expanded.Length;
+
+        vector.UpdateCache();
+
+        vector.Pull().ShouldBeCloseTo(expanded);
+        vector.ToArray().ShouldBeCloseTo(expanded);
+        vector.Length.Should().Be(expanded.Length);
+    }
+
+    [Fact]
     public void SyncCPU_InSync_IsNoOp()
     {
         var vector = CreateVector([1f, 2f, 3f]);

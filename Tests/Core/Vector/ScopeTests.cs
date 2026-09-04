@@ -136,8 +136,8 @@ public class ScopeTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 		public long MemorySize => 0;
 
 		public void DeCache() { }
-		public void IncrementLiveCount() => LiveCount++;
-		public void DecrementLiveCount() => LiveCount--;
+		void ICacheable.IncrementLiveCount() => LiveCount++;
+		void ICacheable.DecrementLiveCount() => LiveCount--;
 		public void SyncCPU() => SyncCpuEntered = true;
 		public void SyncCPU(ILGPU.Runtime.MemoryBuffer buffer) { }
 		public ILGPU.Runtime.MemoryBuffer UpdateCache()
