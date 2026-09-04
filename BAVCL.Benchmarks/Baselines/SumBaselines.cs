@@ -45,10 +45,10 @@ internal static class SumBaselines
 
 	internal static float NeumaierFloat32(ReadOnlySpan<float> data)
 	{
-		float sum = 0f;
-		float compensation = 0f;
+		double sum = 0d;
+		double compensation = 0d;
 		for (int index = 0; index < data.Length; index++)
 			CompensatedSumOps.NeumaierAdd(ref sum, ref compensation, data[index]);
-		return sum + compensation;
+		return (float)(sum + compensation);
 	}
 }
