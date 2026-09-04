@@ -24,3 +24,7 @@ BAVCL.Benchmarks/Results/**
 
 BAVCL.Benchmarks/bin/**/*
 
+# Coverlet / ReportGenerator output
+
+TestResults/
+
