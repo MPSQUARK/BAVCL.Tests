@@ -66,9 +66,9 @@ public static class VarReduceKernelHarness
 		path switch
 		{
 			Path.SharedScratch => gpu.accelerator.LoadKernel<
-				ArrayView<float>, ArrayView<float>, int>(GPU.VarReduceFloatGroupedSharedKernel),
+				ArrayView<float>, ArrayView<float>, int>(GPU.VarReduceFloatGroupedShared_Kern),
 			Path.WarpTree => gpu.accelerator.LoadKernel<
-				ArrayView<float>, ArrayView<float>, int>(GPU.VarReduceFloatGroupedWarpTreeKernel),
+				ArrayView<float>, ArrayView<float>, int>(GPU.VarReduceFloatGroupedWarpTree_Kern),
 			_ => throw new ArgumentOutOfRangeException(nameof(path)),
 		};
 
@@ -78,9 +78,9 @@ public static class VarReduceKernelHarness
 		path switch
 		{
 			Path.SharedScratch => gpu.accelerator.LoadKernel<
-				ArrayView<int>, ArrayView<float>, int>(GPU.VarReduceIntGroupedSharedKernel),
+				ArrayView<int>, ArrayView<float>, int>(GPU.VarReduceIntGroupedShared_Kern),
 			Path.WarpTree => gpu.accelerator.LoadKernel<
-				ArrayView<int>, ArrayView<float>, int>(GPU.VarReduceIntGroupedWarpTreeKernel),
+				ArrayView<int>, ArrayView<float>, int>(GPU.VarReduceIntGroupedWarpTree_Kern),
 			_ => throw new ArgumentOutOfRangeException(nameof(path)),
 		};
 

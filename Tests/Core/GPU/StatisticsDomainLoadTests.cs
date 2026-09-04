@@ -17,7 +17,7 @@ public class StatisticsDomainLoadTests
         var act = () => vector.SumX();
 
         act.Should().Throw<KernelNotCompiledException>()
-            .WithMessage("*sumReduceFloatGroupedCompensatedKernel*");
+            .WithMessage("*sumReduceFloatGroupedCompensated*");
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public class StatisticsDomainLoadTests
         var act = () => vector.SumX();
 
         act.Should().Throw<KernelNotCompiledException>()
-            .WithMessage("*sumReduceFloatGroupedCompensatedKernel*");
+            .WithMessage("*sumReduceFloatGroupedCompensated*");
     }
 
     [Fact]
@@ -44,6 +44,6 @@ public class StatisticsDomainLoadTests
         var act = () => left.DotX(right);
 
         act.Should().Throw<KernelNotCompiledException>()
-            .WithMessage("*dotReduceFloatGroupedCompensatedKernel*");
+            .WithMessage("*dotReduceFloatGroupedCompensated*");
     }
 }

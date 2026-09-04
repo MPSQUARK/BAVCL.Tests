@@ -10,7 +10,7 @@ public class KernelExceptionTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var act = () =>
         {
-            Gpu.TestSQRTKernel(
+            Gpu.TestSqrtIP_Kern(
                 Gpu.accelerator.DefaultStream,
                 1,
                 Gpu.accelerator.Allocate1D<float>(1).View,
@@ -18,7 +18,7 @@ public class KernelExceptionTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         };
 
         act.Should().Throw<KernelNotCompiledException>()
-            .WithMessage("*TestSQRTKernel*");
+            .WithMessage("*TestSqrtIP_Kern*");
     }
 
     [Fact]
@@ -26,7 +26,7 @@ public class KernelExceptionTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         var act = () =>
         {
-            Gpu.TestMYSQRTKernel(
+            Gpu.TestMySqrtIP_Kern(
                 Gpu.accelerator.DefaultStream,
                 1,
                 Gpu.accelerator.Allocate1D<float>(1).View,
@@ -34,6 +34,6 @@ public class KernelExceptionTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         };
 
         act.Should().Throw<KernelNotCompiledException>()
-            .WithMessage("*TestMYSQRTKernel*");
+            .WithMessage("*TestMySqrtIP_Kern*");
     }
 }

@@ -4,7 +4,7 @@ using BAVCL.Tests.Helpers;
 namespace BAVCL.Tests.Core.VectorTests;
 
 /// <summary>
-/// ReduceOPX uses reduceRowOpKernel: one output per matrix row, not NumPy broadcast.
+/// ReduceOPX uses reduceRowOp: one output per matrix row, not NumPy broadcast.
 /// </summary>
 public class VectorReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 {
