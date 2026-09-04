@@ -12,6 +12,8 @@ public class VectorIntStatsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         vector.Mean().Should().Be(5f);
         vector.Var().ShouldBeCloseTo(4f, 1e-3f);
         vector.Std().ShouldBeCloseTo(2f, 1e-3f);
+        vector.SampleVar().ShouldBeCloseTo(32f / 7f, 1e-3f);
+        vector.SampleStd().ShouldBeCloseTo(MathF.Sqrt(32f / 7f), 1e-3f);
     }
 
     [Fact]

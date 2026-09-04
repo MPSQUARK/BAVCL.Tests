@@ -70,6 +70,12 @@ public class StatisticsMathEdgeCaseTests(GpuTestFixture fixture) : GpuTestBase(f
 		vector.MeanX().ShouldBeCloseTo(vector.Mean(), ReduceTolerance);
 		vector.VarX().ShouldBeCloseTo(vector.Var(), VarTolerance);
 		vector.StdX().ShouldBeCloseTo(vector.Std(), VarTolerance);
+		if (data.Length >= 2)
+		{
+			vector.SampleVarX().ShouldBeCloseTo(vector.SampleVar(), VarTolerance);
+			vector.SampleStdX().ShouldBeCloseTo(vector.SampleStd(), VarTolerance);
+		}
+
 		vector.AllX().Should().Be(vector.All());
 	}
 
@@ -88,6 +94,12 @@ public class StatisticsMathEdgeCaseTests(GpuTestFixture fixture) : GpuTestBase(f
 		vector.MeanX().ShouldBeCloseTo(vector.Mean(), ReduceTolerance);
 		vector.VarX().ShouldBeCloseTo(vector.Var(), VarTolerance);
 		vector.StdX().ShouldBeCloseTo(vector.Std(), VarTolerance);
+		if (data.Length >= 2)
+		{
+			vector.SampleVarX().ShouldBeCloseTo(vector.SampleVar(), VarTolerance);
+			vector.SampleStdX().ShouldBeCloseTo(vector.SampleStd(), VarTolerance);
+		}
+
 		vector.AllX().Should().Be(vector.All());
 	}
 
@@ -138,6 +150,8 @@ public class StatisticsMathEdgeCaseTests(GpuTestFixture fixture) : GpuTestBase(f
 		vector.MeanX().Should().Be(0f);
 		vector.VarX().ShouldBeCloseTo(0f, VarTolerance);
 		vector.StdX().ShouldBeCloseTo(0f, VarTolerance);
+		vector.SampleVarX().ShouldBeCloseTo(0f, VarTolerance);
+		vector.SampleStdX().ShouldBeCloseTo(0f, VarTolerance);
 		vector.AllX().Should().BeFalse();
 		vector.All().Should().BeFalse();
 	}
