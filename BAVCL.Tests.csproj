@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BAVCL\BAVCL.csproj" />
+    <ProjectReference Include="BAVCL.Samples\BAVCL.Samples.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +34,9 @@
     <None Remove="BAVCL.Benchmarks\**" />
     <Content Remove="BAVCL.Benchmarks\**" />
     <Compile Include="BAVCL.Benchmarks\Infrastructure\VarReduceKernelHarness.cs" Link="Tests\Helpers\VarReduceKernelHarness.cs" />
+    <Compile Remove="BAVCL.Samples\**" />
+    <None Remove="BAVCL.Samples\**" />
+    <Content Remove="BAVCL.Samples\**" />
   </ItemGroup>
 
   <ItemGroup>

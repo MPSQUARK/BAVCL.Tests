@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Scripts/**" />
-    <None Include="Results/**" />
+    <!-- Requires BAVCL-graph (CompiledGraph); excluded when benchmarking main BAVCL repo -->
+    <Compile Remove="Suites\Graph\GraphComparisonBenchmarks.cs" />
   </ItemGroup>
 
 </Project>
