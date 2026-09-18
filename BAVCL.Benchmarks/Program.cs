@@ -1,6 +1,5 @@
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Running;
@@ -11,6 +10,19 @@ internal static class Program
 {
 	static void Main(string[] args)
 	{
+		if (args.Contains("--migrate-results"))
+		{
+			MigrateMarkdownToCsv.Run();
+			BenchmarkConfig.RelocateExistingRuns();
+			return;
+		}
+
+		if (args.Contains("--relocate-runs"))
+		{
+			BenchmarkConfig.RelocateExistingRuns();
+			return;
+		}
+
 		if (args.Contains("--sum-accuracy-report"))
 		{
 			SumStrategyAccuracyReport.Print();
@@ -18,9 +30,16 @@ internal static class Program
 			return;
 		}
 
+		if (args.Contains("--mask-compaction-ab-report"))
+		{
+			MaskCompactionAbGateReport.WriteReport();
+			return;
+		}
+
 		string scope = BenchmarkConfig.DeriveScopeFromArgs(args);
-		string reportPath = BenchmarkConfig.CreateRunReportPath(scope);
-		Directory.CreateDirectory(BenchmarkConfig.GetArtifactsPath());
+		var (reportPath, runId, timestamp, suite, category) = BenchmarkConfig.CreateRunReportPath(scope);
+		string machine = Environment.MachineName;
+		bool probe = BenchmarkCategories.IsProbe(scope);
 
 		Job job = Job.InProcess
 			.WithMinWarmupCount(1)
@@ -32,13 +51,19 @@ internal static class Program
 			.AddColumnProvider(DefaultColumnProviders.Instance)
 			.AddColumn(StatisticColumn.Min, StatisticColumn.Max)
 			.AddLogger(ConsoleLogger.Default)
-			.AddExporter(new DatedCombinedMarkdownExporter(reportPath, scope))
+			.AddExporter(new DatedCsvExporter(reportPath, runId, timestamp, suite, category, machine))
 			.AddJob(job)
-			.WithArtifactsPath(BenchmarkConfig.GetArtifactsPath())
+			.WithArtifactsPath(BenchmarkConfig.GetCategoryDirectory(scope, probe))
 			.WithOptions(ConfigOptions.DisableLogFile);
 
-		Console.WriteLine($"Scope:  {scope}");
-		Console.WriteLine($"Report: {reportPath}");
+		Console.WriteLine($"Scope:    {scope}");
+		Console.WriteLine($"Category: {category}");
+		Console.WriteLine($"Report:   {reportPath}");
+
 		BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
+
+		int pruned = ProbeCleanup.Run();
+		if (pruned > 0)
+			Console.WriteLine($"Pruned {pruned} probe CSV(s) older than {ProbeCleanup.Retention.TotalDays:0} days.");
 	}
 }
