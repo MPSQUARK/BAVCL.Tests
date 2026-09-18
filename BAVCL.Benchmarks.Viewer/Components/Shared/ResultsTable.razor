@@ -1,0 +1,213 @@
+<div class="table-wrap">
+    <table class="sortable-table">
+        <thead>
+            <tr>
+                <th class="@HeaderClass(SortKey.RunAt)">
+                    <button type="button" class="col-sort" @onclick="() => ToggleSort(SortKey.RunAt)">
+                        Timestamp <span class="sort-ind">@SortIndicator(SortKey.RunAt)</span>
+                    </button>
+                    <div class="th-filters">
+                        <input type="date" class="col-filter col-filter-date" value="@FromDateValue" @onchange="OnFromDateChanged" title="From date" />
+                        <input type="date" class="col-filter col-filter-date" value="@ToDateValue" @onchange="OnToDateChanged" title="To date" />
+                    </div>
+                </th>
+                <th class="@HeaderClass(SortKey.Suite)">
+                    <button type="button" class="col-sort" @onclick="() => ToggleSort(SortKey.Suite)">
+                        Suite <span class="sort-ind">@SortIndicator(SortKey.Suite)</span>
+                    </button>
+                    <input type="search" class="col-filter" placeholder="Filter…" @bind="_suiteFilter" @bind:event="oninput" />
+                </th>
+                <th class="@HeaderClass(SortKey.Method)">
+                    <button type="button" class="col-sort" @onclick="() => ToggleSort(SortKey.Method)">
+                        Method <span class="sort-ind">@SortIndicator(SortKey.Method)</span>
+                    </button>
+                    <input type="search" class="col-filter mono" placeholder="Filter…" @bind="_methodFilter" @bind:event="oninput" />
+                </th>
+                <th class="@HeaderClass(SortKey.N) num-col">
+                    <button type="button" class="col-sort" @onclick="() => ToggleSort(SortKey.N)">
+                        N <span class="sort-ind">@SortIndicator(SortKey.N)</span>
+                    </button>
+                    <input type="search" class="col-filter mono" placeholder="Filter…" @bind="_nFilter" @bind:event="oninput" />
+                </th>
+                <th class="@HeaderClass(SortKey.MeanNs) num-col">
+                    <button type="button" class="col-sort" @onclick="() => ToggleSort(SortKey.MeanNs)">
+                        Mean <span class="sort-ind">@SortIndicator(SortKey.MeanNs)</span>
+                    </button>
+                    <input type="search" class="col-filter mono" placeholder="Filter…" @bind="_meanFilter" @bind:event="oninput" />
+                </th>
+                <th class="@HeaderClass(SortKey.StdDevNs) num-col">
+                    <button type="button" class="col-sort" @onclick="() => ToggleSort(SortKey.StdDevNs)">
+                        StdDev <span class="sort-ind">@SortIndicator(SortKey.StdDevNs)</span>
+                    </button>
+                    <input type="search" class="col-filter mono" placeholder="Filter…" @bind="_stdDevFilter" @bind:event="oninput" />
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (BenchmarkRow row in VisibleRows)
+            {
+                <tr>
+                    <td><span class="mono">@FormatTimestamp(row)</span></td>
+                    <td>@DisplayFormatting.ReadableName(row.Suite)</td>
+                    <td class="mono method-cell">@row.Method</td>
+                    <td class="mono num-col">@(row.N?.ToString("N0") ?? "—")</td>
+                    <td class="mono num-col">@BenchmarkDataStore.FormatNanoseconds(row.MeanNs)</td>
+                    <td class="mono num-col">@(row.StdDevNs is double sd ? BenchmarkDataStore.FormatNanoseconds(sd) : "—")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public IEnumerable<BenchmarkRow> Rows { get; set; } = [];
+
+    enum SortKey { RunAt, Suite, Method, N, MeanNs, StdDevNs }
+    enum SortDir { Asc, Desc }
+
+    SortKey _sortKey = SortKey.RunAt;
+    SortDir _sortDir = SortDir.Desc;
+
+    DateTime? _fromDate;
+    DateTime? _toDate;
+    string _suiteFilter = "";
+    string _methodFilter = "";
+    string _nFilter = "";
+    string _meanFilter = "";
+    string _stdDevFilter = "";
+
+    string? FromDateValue => _fromDate?.ToString("yyyy-MM-dd");
+    string? ToDateValue => _toDate?.ToString("yyyy-MM-dd");
+
+    IEnumerable<BenchmarkRow> VisibleRows => ApplySort(ApplyFilters(Rows));
+
+    void ToggleSort(SortKey key)
+    {
+        if (_sortKey == key)
+            _sortDir = _sortDir == SortDir.Asc ? SortDir.Desc : SortDir.Asc;
+        else
+        {
+            _sortKey = key;
+            _sortDir = key is SortKey.RunAt or SortKey.MeanNs or SortKey.StdDevNs or SortKey.N
+                ? SortDir.Desc
+                : SortDir.Asc;
+        }
+    }
+
+    string HeaderClass(SortKey key) => _sortKey == key ? "sorted" : "";
+
+    string SortIndicator(SortKey key) =>
+        _sortKey != key ? "" : _sortDir == SortDir.Asc ? "↑" : "↓";
+
+    void OnFromDateChanged(ChangeEventArgs e)
+    {
+        _fromDate = DateTime.TryParse(e.Value?.ToString(), out DateTime d) ? d.Date : null;
+    }
+
+    void OnToDateChanged(ChangeEventArgs e)
+    {
+        _toDate = DateTime.TryParse(e.Value?.ToString(), out DateTime d) ? d.Date : null;
+    }
+
+    static string FormatTimestamp(BenchmarkRow row) =>
+        row.RunAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? BenchmarkDataStore.FormatTimestamp(row.Timestamp);
+
+    IEnumerable<BenchmarkRow> ApplyFilters(IEnumerable<BenchmarkRow> rows)
+    {
+        foreach (BenchmarkRow row in rows)
+        {
+            if (_fromDate is DateTime from && (row.RunAt is null || row.RunAt < from))
+                continue;
+            if (_toDate is DateTime to)
+            {
+                DateTime end = to.Date.AddDays(1).AddTicks(-1);
+                if (row.RunAt is null || row.RunAt > end)
+                    continue;
+            }
+
+            if (!MatchesText(_suiteFilter, row.Suite, DisplayFormatting.ReadableName(row.Suite)))
+                continue;
+            if (!MatchesText(_methodFilter, row.Method))
+                continue;
+            if (!MatchesNumber(_nFilter, row.N, row.N?.ToString("N0")))
+                continue;
+            if (!MatchesNumber(_meanFilter, row.MeanNs, BenchmarkDataStore.FormatNanoseconds(row.MeanNs)))
+                continue;
+            if (!MatchesNumber(_stdDevFilter, row.StdDevNs, row.StdDevNs is double sd ? BenchmarkDataStore.FormatNanoseconds(sd) : ""))
+                continue;
+
+            yield return row;
+        }
+    }
+
+    static bool MatchesText(string filter, params string[] values)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+            return true;
+
+        return values.Any(v => v.Contains(filter, StringComparison.OrdinalIgnoreCase));
+    }
+
+    static bool MatchesNumber(string filter, double? value, string? display)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+            return true;
+
+        if (display?.Contains(filter, StringComparison.OrdinalIgnoreCase) == true)
+            return true;
+
+        if (double.TryParse(filter.Replace(",", ""), System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out double target))
+            return value is double v && Math.Abs(v - target) < 0.001;
+
+        return false;
+    }
+
+    static bool MatchesNumber(string filter, int? value, string? display)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+            return true;
+
+        if (display?.Contains(filter, StringComparison.OrdinalIgnoreCase) == true)
+            return true;
+
+        if (int.TryParse(filter.Replace(",", ""), System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture, out int target))
+            return value == target;
+
+        return false;
+    }
+
+    IEnumerable<BenchmarkRow> ApplySort(IEnumerable<BenchmarkRow> rows)
+    {
+        IOrderedEnumerable<BenchmarkRow> ordered = _sortKey switch
+        {
+            SortKey.RunAt => _sortDir == SortDir.Asc
+                ? rows.OrderBy(r => r.RunAt ?? DateTime.MinValue)
+                : rows.OrderByDescending(r => r.RunAt ?? DateTime.MinValue),
+            SortKey.Suite => _sortDir == SortDir.Asc
+                ? rows.OrderBy(r => r.Suite, StringComparer.OrdinalIgnoreCase)
+                : rows.OrderByDescending(r => r.Suite, StringComparer.OrdinalIgnoreCase),
+            SortKey.Method => _sortDir == SortDir.Asc
+                ? rows.OrderBy(r => r.Method, StringComparer.OrdinalIgnoreCase)
+                : rows.OrderByDescending(r => r.Method, StringComparer.OrdinalIgnoreCase),
+            SortKey.N => _sortDir == SortDir.Asc
+                ? rows.OrderBy(r => r.N ?? 0)
+                : rows.OrderByDescending(r => r.N ?? 0),
+            SortKey.MeanNs => _sortDir == SortDir.Asc
+                ? rows.OrderBy(r => r.MeanNs)
+                : rows.OrderByDescending(r => r.MeanNs),
+            SortKey.StdDevNs => _sortDir == SortDir.Asc
+                ? rows.OrderBy(r => r.StdDevNs ?? double.MaxValue)
+                : rows.OrderByDescending(r => r.StdDevNs ?? double.MinValue),
+            _ => rows.OrderByDescending(r => r.RunAt ?? DateTime.MinValue),
+        };
+
+        if (_sortKey != SortKey.Method)
+            ordered = ordered.ThenBy(r => r.Method, StringComparer.OrdinalIgnoreCase);
+        if (_sortKey != SortKey.N)
+            ordered = ordered.ThenBy(r => r.N ?? 0);
+
+        return ordered;
+    }
+}

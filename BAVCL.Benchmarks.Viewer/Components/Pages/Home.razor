@@ -1,0 +1,515 @@
+@page "/"
+@inject BenchmarkDataStore Store
+@inject BenchmarkCsvLoader Loader
+@inject BenchmarkPlotService Plots
+
+<div class="bavcl-app">
+    <aside class="bavcl-sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="7" y="7" width="18" height="18" rx="2.5" stroke="currentColor" stroke-width="1.5" />
+                    <path
+                    d="M7 12h-3M7 16h-3M7 20h-3M25 12h3M25 16h3M25 20h3M12 7V4M16 7V4M20 7V4M12 25v3M16 25v3M20 25v3"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    <rect x="11" y="11" width="4" height="4" rx="0.5" fill="currentColor" opacity="0.9" />
+                    <rect x="17" y="11" width="4" height="4" rx="0.5" fill="currentColor" opacity="0.55" />
+                    <rect x="11" y="17" width="4" height="4" rx="0.5" fill="currentColor" opacity="0.55" />
+                    <rect x="17" y="17" width="4" height="4" rx="0.5" fill="currentColor" opacity="0.35" />
+                    <path d="M22 22l5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                    <path d="M24 22l3 0l0 3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                          stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div>
+                <span class="brand-name">BAVCL</span>
+                <span class="brand-tag">Bad Ass Vector Compute Library</span>
+            </div>
+        </div>
+        <div class="sidebar-accent" aria-hidden="true"></div>
+
+        <div class="sidebar-panel">
+            <div class="category-nav">
+                <span class="field-label">Category</span>
+                <div class="category-pills">
+                    @foreach (string category in Store.Categories())
+                    {
+                        <button type="button" class="category-pill @(_category == category ? "active" : "")"
+                                @onclick="() => SelectCategory(category)">
+                            @category
+                        </button>
+                    }
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(_category))
+            {
+                <div class="field">
+                    <div class="field-row">
+                        <span>Methods</span>
+                        <button type="button" class="link-btn" @onclick="SelectAllMethods">All</button>
+                        <button type="button" class="link-btn" @onclick="ClearMethods">None</button>
+                    </div>
+                    <div class="method-groups">
+                        @foreach (MethodFamily family in MethodGrouping.GroupMethods(Store.Methods(_category)))
+                        {
+                            <div class="method-family">
+                                <div class="method-family-header">
+                                    <span class="family-name">@DisplayFormatting.ReadableName(family.Name)</span>
+                                    @if (family.Methods.Count > 1)
+                                    {
+                                        <button type="button" class="link-btn"
+                                                @onclick="() => SelectFamily(family)">Compare</button>
+                                    }
+                                </div>
+                                @foreach (string method in family.Methods)
+                                {
+                                    bool selected = _selectedMethods.Contains(method);
+                                    <label class="method-item" title="@method">
+                                        <input type="checkbox" checked="@selected" @onchange="e => ToggleMethod(method, e)" />
+                                        <span>@MethodGrouping.ShortLabel(method)</span>
+                                    </label>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @if (_availableRunIds.Count > 0)
+                {
+                    <div class="field">
+                        <div class="field-row">
+                            <span>Runs</span>
+                            <button type="button" class="link-btn" @onclick="SelectAllRuns">All</button>
+                            <button type="button" class="link-btn" @onclick="ClearRuns">None</button>
+                        </div>
+                        <div class="run-list">
+                            @foreach (string runId in _availableRunIds)
+                            {
+                                bool selected = _selectedRunIds.Contains(runId);
+                                <label class="run-item">
+                                    <input type="checkbox" checked="@selected" @onchange="e => ToggleRun(runId, e)" />
+                                    <span>@RunLabel(runId)</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            <footer class="sidebar-footer">
+                <code class="path-hint" title="@_benchmarksPath">@ShortPath(_benchmarksPath)</code>
+            </footer>
+        </div>
+    </aside>
+
+    <div class="bavcl-main">
+        <header class="main-header">
+            <div>
+                <h1>Benchmark results</h1>
+                <p class="header-sub">
+                    @if (_loading)
+                    {
+                        <span>Loading CSV files…</span>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(_loadError))
+                    {
+                        <span class="text-error">@_loadError</span>
+                    }
+                    else
+                    {
+                        <span>@_fileCount CSV file(s) · @_rowCount rows · @Store.Categories().Count categories</span>
+                    }
+                </p>
+            </div>
+            <button type="button" class="btn btn-refresh" @onclick="ReloadAsync" disabled="@_loading">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                     aria-hidden="true">
+                    <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+                    <polyline points="21 3 21 9 15 9" />
+                </svg>
+                Refresh
+            </button>
+        </header>
+
+        @if (!string.IsNullOrWhiteSpace(_plotError))
+        {
+            <div class="plot-error" role="alert">@_plotError</div>
+        }
+
+        @if (!_loading && _rowCount == 0)
+        {
+            <section class="empty-state">
+                <h2>No benchmark data yet</h2>
+                <p>CSV files are read automatically from <code>BAVCL.Benchmarks/Benchmarks/</code>.</p>
+                <ol class="empty-steps">
+                    <li>Run benchmarks: <code>dotnet run --project BAVCL.Benchmarks -- --filter *</code></li>
+                    <li>Click <strong>Refresh</strong></li>
+                </ol>
+            </section>
+        }
+        else if (!_loading)
+        {
+            <div class="stat-row">
+                <div class="stat-chip">
+                    <span class="stat-value">@_selectedMethods.Count</span>
+                    <span class="stat-label">Methods selected</span>
+                </div>
+                <div class="stat-chip">
+                    <span class="stat-value">@_selectedRunIds.Count</span>
+                    <span class="stat-label">Runs selected</span>
+                </div>
+                @if (_fastestMean is double fastest && _fastestMeanN is int fastestN)
+                {
+                    <div class="stat-chip highlight">
+                        <span class="stat-value">@BenchmarkDataStore.FormatNanoseconds(fastest)</span>
+                        <span class="stat-label">Fastest at N = @fastestN</span>
+                    </div>
+                }
+            </div>
+
+            <div class="chart-grid">
+                <section class="chart-card">
+                    <header class="chart-header">
+                        <div>
+                            <h2>Scaling</h2>
+                            <p class="chart-desc">Compare methods on the same axes (log N)</p>
+                        </div>
+                        @if (_selectedMethods.Count > 0)
+                        {
+                            <button type="button" class="btn btn-ghost-sm"
+                                    @onclick="() => OpenFullscreen(_scalingPlotUrl)">Fullscreen</button>
+                        }
+                    </header>
+                    <div class="chart-body">
+                        @if (_selectedMethods.Count == 0)
+                        {
+                            <div class="chart-placeholder">Select one or more methods — use <strong>Compare</strong> for eager
+                                vs graph</div>
+                            }
+                        else if (_plotting)
+                            {
+                                <div class="chart-placeholder">Generating plot…</div>
+                            }
+                            else if (!string.IsNullOrEmpty(_scalingPlotUrl))
+                            {
+                                <div class="plot-frame" @onclick="() => OpenFullscreen(_scalingPlotUrl)">
+                                    <img src="@_scalingPlotUrl?v=@_plotVersion" alt="Scaling chart" />
+                                </div>
+                            }
+                        </div>
+                    </section>
+
+                    <section class="chart-card">
+                        <header class="chart-header">
+                            <div>
+                                <h2>Run history</h2>
+                                <p class="chart-desc">@HistorySubtitle()</p>
+                            </div>
+                            @if (_selectedMethods.Count > 0)
+                            {
+                                <button type="button" class="btn btn-ghost-sm"
+                                        @onclick="() => OpenFullscreen(_historyPlotUrl)">Fullscreen</button>
+                            }
+                        </header>
+                        <div class="chart-body">
+                            @if (_selectedMethods.Count == 0)
+                            {
+                                <div class="chart-placeholder">Select methods to compare across runs</div>
+                            }
+                            else if (_plotting)
+                            {
+                                <div class="chart-placeholder">Generating plot…</div>
+                            }
+                            else if (!string.IsNullOrEmpty(_historyPlotUrl))
+                            {
+                                <div class="plot-frame" @onclick="() => OpenFullscreen(_historyPlotUrl)">
+                                    <img src="@_historyPlotUrl?v=@_plotVersion" alt="Run history chart" />
+                                </div>
+                            }
+                        </div>
+                    </section>
+                </div>
+
+                @if (_selectedMethods.Count > 0)
+                {
+                    <section class="table-card">
+                        <header class="chart-header">
+                            <h2>Results</h2>
+                        </header>
+                        <ResultsTable Rows="TableRows()" />
+                    </section>
+                }
+            }
+        </div>
+    </div>
+
+    @if (_fullscreenUrl is not null)
+    {
+        <div class="plot-fullscreen-backdrop" @onclick="CloseFullscreen">
+            <div class="plot-fullscreen-panel" @onclick:stopPropagation="true">
+                <button type="button" class="plot-fullscreen-close btn btn-ghost-sm" @onclick="CloseFullscreen">Close</button>
+                <img src="@_fullscreenUrl?v=@_plotVersion" alt="Fullscreen chart" />
+            </div>
+        </div>
+    }
+
+@code {
+    string _category = "";
+    string _benchmarksPath = "";
+    string _loadError = "";
+    string _plotError = "";
+    string _scalingPlotUrl = "";
+    string _historyPlotUrl = "";
+    string? _fullscreenUrl;
+    bool _loading = true;
+    bool _plotting;
+    int _rowCount;
+    int _fileCount;
+    int _plotVersion;
+    double? _fastestMean;
+    int? _fastestMeanN;
+
+    List<string> _availableRunIds = [];
+    HashSet<string> _selectedRunIds = new(StringComparer.OrdinalIgnoreCase);
+    HashSet<string> _selectedMethods = new(StringComparer.OrdinalIgnoreCase);
+
+    CancellationTokenSource? _plotCts;
+    int _plotRequestId;
+
+    protected override async Task OnInitializedAsync() => await ReloadAsync();
+
+    async Task ReloadAsync()
+    {
+        _loading = true;
+        _loadError = "";
+        _plotError = "";
+        _scalingPlotUrl = "";
+        _historyPlotUrl = "";
+        StateHasChanged();
+
+        try
+        {
+            BenchmarkLoadResult result = Loader.Reload();
+            _benchmarksPath = result.Path;
+            _fileCount = result.FileCount;
+            _rowCount = result.RowCount;
+            _loadError = result.Error ?? "";
+
+            if (_rowCount > 0)
+            {
+                var categories = Store.Categories();
+                if (string.IsNullOrWhiteSpace(_category) || !categories.Contains(_category, StringComparer.OrdinalIgnoreCase))
+                    _category = categories.FirstOrDefault() ?? "";
+            }
+
+            OnSelectionChanged();
+            await GeneratePlotsAsync();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    async Task SelectCategory(string category)
+    {
+        _category = category;
+        _selectedMethods.Clear();
+        _scalingPlotUrl = "";
+        _historyPlotUrl = "";
+        OnSelectionChanged();
+        await GeneratePlotsAsync();
+    }
+
+    async Task ToggleMethod(string method, ChangeEventArgs e)
+    {
+        bool checked_ = e.Value is bool b && b;
+        if (checked_) _selectedMethods.Add(method);
+        else _selectedMethods.Remove(method);
+
+        OnSelectionChanged();
+        await GeneratePlotsAsync();
+    }
+
+    async Task SelectFamily(MethodFamily family)
+    {
+        foreach (string method in family.Methods)
+            _selectedMethods.Add(method);
+
+        OnSelectionChanged();
+        await GeneratePlotsAsync();
+    }
+
+    async Task SelectAllMethods()
+    {
+        foreach (string method in Store.Methods(_category))
+            _selectedMethods.Add(method);
+
+        OnSelectionChanged();
+        await GeneratePlotsAsync();
+    }
+
+    async Task ClearMethods()
+    {
+        _selectedMethods.Clear();
+        OnSelectionChanged();
+        await GeneratePlotsAsync();
+    }
+
+    void OnSelectionChanged()
+    {
+        _availableRunIds = Store.Filter(_category, _selectedMethods.Count > 0 ? _selectedMethods : null, null)
+            .Select(r => r.RunId)
+            .Distinct()
+            .OrderBy(r => r)
+            .ToList();
+
+        if (_selectedRunIds.Count == 0 || !_availableRunIds.Any(id => _selectedRunIds.Contains(id)))
+            _selectedRunIds = _availableRunIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        UpdateFastestMean();
+    }
+
+    void UpdateFastestMean()
+    {
+        if (_selectedMethods.Count == 0)
+        {
+            _fastestMean = null;
+            _fastestMeanN = null;
+            return;
+        }
+
+        var rows = Store.Filter(_category, _selectedMethods, _selectedRunIds).ToList();
+        int? maxN = rows.Select(r => r.N).Where(n => n is > 0).DefaultIfEmpty().Max();
+        if (maxN is null or <= 0)
+        {
+            _fastestMean = null;
+            _fastestMeanN = null;
+            return;
+        }
+
+        var meansAtN = rows.Where(r => r.N == maxN).Select(r => r.MeanNs).ToList();
+        _fastestMean = meansAtN.Count > 0 ? meansAtN.Min() : null;
+        _fastestMeanN = maxN;
+    }
+
+    async Task SelectAllRuns()
+    {
+        _selectedRunIds = _availableRunIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        UpdateFastestMean();
+        await GeneratePlotsAsync();
+    }
+
+    async Task ClearRuns()
+    {
+        _selectedRunIds.Clear();
+        UpdateFastestMean();
+        await GeneratePlotsAsync();
+    }
+
+    async Task ToggleRun(string runId, ChangeEventArgs e)
+    {
+        bool checked_ = e.Value is bool b && b;
+        if (checked_) _selectedRunIds.Add(runId);
+        else _selectedRunIds.Remove(runId);
+
+        UpdateFastestMean();
+        await GeneratePlotsAsync();
+    }
+
+    async Task GeneratePlotsAsync()
+    {
+        if (_selectedMethods.Count == 0 || string.IsNullOrWhiteSpace(_category))
+        {
+            _scalingPlotUrl = "";
+            _historyPlotUrl = "";
+            return;
+        }
+
+        _plotCts?.Cancel();
+        _plotCts?.Dispose();
+        var cts = new CancellationTokenSource();
+        _plotCts = cts;
+        int requestId = ++_plotRequestId;
+
+        _plotting = true;
+        _plotError = "";
+        await InvokeAsync(StateHasChanged);
+
+        string category = _category;
+        string[] methods = _selectedMethods.ToArray();
+        string[] runIds = _selectedRunIds.ToArray();
+
+        try
+        {
+            (string scaling, string history) = await Task.Run(
+                () => Plots.GeneratePlots(category, methods, runIds),
+                cts.Token);
+
+            if (cts.IsCancellationRequested || requestId != _plotRequestId)
+                return;
+
+            _scalingPlotUrl = scaling;
+            _historyPlotUrl = history;
+            _plotVersion++;
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            if (cts.IsCancellationRequested || requestId != _plotRequestId)
+                return;
+
+            _plotError = $"Plot failed: {ex.Message}";
+            _scalingPlotUrl = "";
+            _historyPlotUrl = "";
+        }
+        finally
+        {
+            if (requestId == _plotRequestId)
+            {
+                _plotting = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    void OpenFullscreen(string? url)
+    {
+        if (!string.IsNullOrEmpty(url))
+            _fullscreenUrl = url;
+    }
+
+    void CloseFullscreen() => _fullscreenUrl = null;
+
+    string RunLabel(string runId)
+    {
+        BenchmarkRow? row = Store.Rows.FirstOrDefault(r => r.RunId == runId);
+        return row is null ? runId : BenchmarkDataStore.FormatTimestamp(row.Timestamp);
+    }
+
+    string HistorySubtitle()
+    {
+        if (_selectedMethods.Count == 0)
+            return "Select methods to compare";
+
+        int? n = Store.Filter(_category, _selectedMethods, _selectedRunIds)
+            .Select(r => r.N)
+            .Where(n => n is > 0)
+            .Select(n => n!.Value)
+            .DefaultIfEmpty()
+            .Max();
+
+        return n > 0 ? $"Mean time at N = {n:n0}" : "Across selected runs";
+    }
+
+    IEnumerable<BenchmarkRow> TableRows() =>
+        Store.Filter(_category, _selectedMethods, _selectedRunIds);
+
+    static string ShortPath(string path)
+    {
+        const string marker = "BAVCL.Benchmarks";
+        int idx = path.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+        return idx >= 0 ? path[idx..] : path;
+    }
+}
