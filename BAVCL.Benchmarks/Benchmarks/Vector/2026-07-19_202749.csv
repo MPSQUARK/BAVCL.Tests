@@ -1,0 +1,4 @@
+﻿RunId,Timestamp,Category,Suite,Machine,Method,Job,N,Mean [ns],Error [ns],StdDev [ns],Min [ns],Max [ns],Allocated
+2026-07-19_202749-july-2026-baseline,2026-07-19_202749,vector,VectorStructuralBenchmarks,DESKTOP-I8B3EAL,Transpose_Matrix,,,44810,35980,9344,28580,52280,8.95 KB
+2026-07-19_202749-july-2026-baseline,2026-07-19_202749,vector,VectorStructuralBenchmarks,DESKTOP-I8B3EAL,Dot,,10000,99810,81230,21095,74700,125150,44.12 KB
+2026-07-19_202749-july-2026-baseline,2026-07-19_202749,vector,VectorStructuralBenchmarks,DESKTOP-I8B3EAL,Concat,,1000,582030,580780,150827,416130,797950,380.62 KB

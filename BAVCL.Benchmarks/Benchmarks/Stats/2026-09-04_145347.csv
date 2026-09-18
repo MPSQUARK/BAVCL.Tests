@@ -1,0 +1,5 @@
+﻿RunId,Timestamp,Category,Suite,Machine,Method,Job,N,Mean [ns],Error [ns],StdDev [ns],Min [ns],Max [ns],Allocated
+2026-09-04_145347-baseline,2026-09-04_145347,stats,VarStrategyBenchmark,DESKTOP-I8B3EAL,TwoPass,,10000,22630,12641,693,22220,23430,**-**
+2026-09-04_145347-baseline,2026-09-04_145347,stats,VarStrategyBenchmark,DESKTOP-I8B3EAL,SinglePass_Production,,10000,17230,317,17,17210,17250,-
+2026-09-04_145347-baseline,2026-09-04_145347,stats,VarStrategyBenchmark,DESKTOP-I8B3EAL,TwoPass,,1000000,2266670,70556,3867,2262790,2270530,**-**
+2026-09-04_145347-baseline,2026-09-04_145347,stats,VarStrategyBenchmark,DESKTOP-I8B3EAL,SinglePass_Production,,1000000,1755550,658128,36074,1730570,1796910,-

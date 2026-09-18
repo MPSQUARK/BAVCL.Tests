@@ -1,0 +1,4 @@
+﻿RunId,Timestamp,Category,Suite,Machine,Method,Job,N,Mean [ns],Error [ns],StdDev [ns],Min [ns],Max [ns],Allocated
+2026-07-19_202418-july-2026-baseline,2026-07-19_202418,vector,Vector3GeometryBenchmarks,DESKTOP-I8B3EAL,Cross,,1000,50160,30830,8007,38020,57810,8.96 KB
+2026-07-19_202418-july-2026-baseline,2026-07-19_202418,vector,Vector3GeometryBenchmarks,DESKTOP-I8B3EAL,Magnitude,,1000,47910,33330,8657,39100,58980,8.96 KB
+2026-07-19_202418-july-2026-baseline,2026-07-19_202418,vector,Vector3GeometryBenchmarks,DESKTOP-I8B3EAL,Distance,,1000,70030,87660,22764,49640,100580,8.97 KB

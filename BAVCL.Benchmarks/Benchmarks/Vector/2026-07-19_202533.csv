@@ -1,0 +1,7 @@
+﻿RunId,Timestamp,Category,Suite,Machine,Method,Job,N,Mean [ns],Error [ns],StdDev [ns],Min [ns],Max [ns],Allocated
+2026-07-19_202533-july-2026-baseline,2026-07-19_202533,vector,VectorArithmeticBenchmarks,DESKTOP-I8B3EAL,Add,,1000,35120,26430,6864,26860,42620,8.96 KB
+2026-07-19_202533-july-2026-baseline,2026-07-19_202533,vector,VectorArithmeticBenchmarks,DESKTOP-I8B3EAL,Add,,10000,35190,15691,4075,30350,41080,4.94 KB
+2026-07-19_202533-july-2026-baseline,2026-07-19_202533,vector,VectorArithmeticBenchmarks,DESKTOP-I8B3EAL,Add,,100000,38470,47251,12271,26850,52390,1.04 KB
+2026-07-19_202533-july-2026-baseline,2026-07-19_202533,vector,VectorArithmeticBenchmarks,DESKTOP-I8B3EAL,Sub,,1000,42430,9623,2499,38760,45100,8.96 KB
+2026-07-19_202533-july-2026-baseline,2026-07-19_202533,vector,VectorArithmeticBenchmarks,DESKTOP-I8B3EAL,Mul,,1000,42910,21467,5575,33280,47470,8.96 KB
+2026-07-19_202533-july-2026-baseline,2026-07-19_202533,vector,VectorArithmeticBenchmarks,DESKTOP-I8B3EAL,Div,,1000,36770,37914,5867,28020,40170,8.96 KB

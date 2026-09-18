@@ -1,0 +1,5 @@
+﻿RunId,Timestamp,Category,Suite,Machine,Method,Job,N,Mean [ns],Error [ns],StdDev [ns],Min [ns],Max [ns],Allocated
+2026-07-19_202834-july-2026-baseline,2026-07-19_202834,vector,VectorUnaryBenchmarks,DESKTOP-I8B3EAL,AbsX,,10000,93120,94140,24449,62030,121140,42.16 KB
+2026-07-19_202834-july-2026-baseline,2026-07-19_202834,vector,VectorUnaryBenchmarks,DESKTOP-I8B3EAL,ReverseX,,10000,65239.99999999999,34310,5310,62160,73190,42.16 KB
+2026-07-19_202834-july-2026-baseline,2026-07-19_202834,vector,VectorUnaryBenchmarks,DESKTOP-I8B3EAL,Diff,,10000,53010,20880,5422,47700,60400,7.91 KB
+2026-07-19_202834-july-2026-baseline,2026-07-19_202834,vector,VectorUnaryBenchmarks,DESKTOP-I8B3EAL,NanToNum,,10000,99320,107140,27824,63120,134400,42.16 KB

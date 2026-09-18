@@ -1,0 +1,3 @@
+﻿RunId,Timestamp,Category,Suite,Machine,Method,Job,N,Mean [ns],Error [ns],StdDev [ns],Min [ns],Max [ns],Allocated
+2026-09-04_145104-baseline,2026-09-04_145104,stats,SumStrategyBenchmark,DESKTOP-I8B3EAL,Neumaier_Production,,10000,11780,4111,225,11650,12040,**-**
+2026-09-04_145104-baseline,2026-09-04_145104,stats,SumStrategyBenchmark,DESKTOP-I8B3EAL,Neumaier_Production,,1000000,1144610,32662,1790,1142750,1146320,**-**

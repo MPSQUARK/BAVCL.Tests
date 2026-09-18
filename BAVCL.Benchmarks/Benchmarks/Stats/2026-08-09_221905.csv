@@ -1,0 +1,6 @@
+﻿RunId,Timestamp,Category,Suite,Machine,Method,Job,N,Mean [ns],Error [ns],StdDev [ns],Min [ns],Max [ns],Allocated
+2026-08-09_221905-baseline,2026-08-09_221905,stats,RowReduceAccuracyBenchmark,DESKTOP-I8B3EAL,CpuKahanReference,,,29563500,8715320,477720,29103100,30056800,4246 B
+2026-08-09_221905-baseline,2026-08-09_221905,stats,RowReduceAccuracyBenchmark,DESKTOP-I8B3EAL,Legacy,,,3200600,999530,54790,3150100,3258800,1018 B
+2026-08-09_221905-baseline,2026-08-09_221905,stats,RowReduceAccuracyBenchmark,DESKTOP-I8B3EAL,FusedGrouped,,,172700,62830,3440,168800,175300,1513 B
+2026-08-09_221905-baseline,2026-08-09_221905,stats,RowReduceAccuracyBenchmark,DESKTOP-I8B3EAL,FusedGroupedKahan,,,172200,70580,3870,169700,176700,2601 B
+2026-08-09_221905-baseline,2026-08-09_221905,stats,RowReduceAccuracyBenchmark,DESKTOP-I8B3EAL,DecomposedBroadcastRowSum,,,2687000,253180,13880,2674900,2702100,1104 B

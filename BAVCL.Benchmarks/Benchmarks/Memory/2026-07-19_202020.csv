@@ -1,0 +1,4 @@
+﻿RunId,Timestamp,Category,Suite,Machine,Method,Job,N,Mean [ns],Error [ns],StdDev [ns],Min [ns],Max [ns],Allocated
+2026-07-19_202020-july-2026-baseline,2026-07-19_202020,memory,CacheUpdateBenchmarks,DESKTOP-I8B3EAL,UpdateCache,,1000,4.355,0.1363,0.0354,4.316,4.397,-
+2026-07-19_202020-july-2026-baseline,2026-07-19_202020,memory,CacheUpdateBenchmarks,DESKTOP-I8B3EAL,UpdateCache,,10000,4.29,0.3183,0.0493,4.236,4.351,-
+2026-07-19_202020-july-2026-baseline,2026-07-19_202020,memory,CacheUpdateBenchmarks,DESKTOP-I8B3EAL,UpdateCache,,100000,4.261,0.0685,0.0178,4.245,4.282,-

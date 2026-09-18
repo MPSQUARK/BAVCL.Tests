@@ -1,0 +1,7 @@
+﻿RunId,Timestamp,Category,Suite,Machine,Method,Job,N,Mean [ns],Error [ns],StdDev [ns],Min [ns],Max [ns],Allocated
+2026-09-04_145305-baseline,2026-09-04_145305,stats,SumStrategyBenchmark,DESKTOP-I8B3EAL,NaiveSimd,,10000,901.6,388.49,21.29,877.1,914,**-**
+2026-09-04_145305-baseline,2026-09-04_145305,stats,SumStrategyBenchmark,DESKTOP-I8B3EAL,Kahan,,10000,28877.5,40.78,2.24,28876.2,28880.1,-
+2026-09-04_145305-baseline,2026-09-04_145305,stats,SumStrategyBenchmark,DESKTOP-I8B3EAL,Neumaier_Production,,10000,22323.7,643.11,35.25,22283.3,22348.2,-
+2026-09-04_145305-baseline,2026-09-04_145305,stats,SumStrategyBenchmark,DESKTOP-I8B3EAL,NaiveSimd,,1000000,88442.1,1443.16,79.1,88364.6,88522.7,**-**
+2026-09-04_145305-baseline,2026-09-04_145305,stats,SumStrategyBenchmark,DESKTOP-I8B3EAL,Kahan,,1000000,2905799.2,94555.13,5182.89,2901693.8,2911623,-
+2026-09-04_145305-baseline,2026-09-04_145305,stats,SumStrategyBenchmark,DESKTOP-I8B3EAL,Neumaier_Production,,1000000,2256032,240813.79,13199.82,2246377.7,2271073.4,-
