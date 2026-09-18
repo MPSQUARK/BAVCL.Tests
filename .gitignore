@@ -9,22 +9,11 @@ __pycache__
 *.pyc
 obj/Debug/net6.0/BAVCL.Tests.GeneratedMSBuildEditorConfig.editorconfig
 
-
-
-# Benchmark runs: keep markdown reports only
-
-BAVCL.Benchmarks/Results/**
-
-!BAVCL.Benchmarks/Results/**/*.md
-
-
-
+# Generated plot PNGs from the benchmark viewer
+BAVCL.Benchmarks.Viewer/wwwroot/plots/
 
 # BenchmarkDotNet in-process emit artifacts
-
 BAVCL.Benchmarks/bin/**/*
 
 # Coverlet / ReportGenerator output
-
 TestResults/
-
