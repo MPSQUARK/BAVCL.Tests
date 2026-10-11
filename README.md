@@ -17,6 +17,8 @@ The benchmark project is nested here but excluded from the test assembly (`Compi
 
 ## Tests
 
+Behavioral index of every test (Given / Then): [docs/TEST_CATALOG.md](docs/TEST_CATALOG.md). Agents must keep it in sync — see [AGENTS.md](AGENTS.md).
+
 ```bash
 dotnet test                                    # default (excludes IO)
 dotnet test -p:IncludeIOTests=true --filter Category=IO
