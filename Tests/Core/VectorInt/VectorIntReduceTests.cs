@@ -45,7 +45,7 @@ public class VectorIntReduceTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
         Action act = () => matrix.ReduceOPX(vector, Operations.add);
 
-        act.Should().Throw<ShapeMismatchException>();
+        act.Should().Throw<RowVectorLayoutException>();
     }
 
     static int[] RowReduceReference(int[] coeff, int[] matrix, int rows, int cols, Operations op)
