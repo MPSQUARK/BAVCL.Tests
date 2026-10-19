@@ -132,6 +132,26 @@ _Add untested edge cases here during review._
 - **Given** statistics GPU kernels **not** loaded on the device.
 - **Then** throws `KernelNotCompiledException` with message matching `*KernelDomain.Statistics*`
 
+### `SortingDomainLoadTests`
+
+#### `SortAscXIP_Float_WithoutSortingDomain_ThrowsKernelNotCompiledException` — `SortingDomainLoadTests`
+
+- **Source:** `Tests/Core/GPU/SortingDomainLoadTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** A fresh `GPU` with only `KernelWorkloads.Default` loaded (Sorting domain not loaded) and a small `Vector` float buffer.
+- **Then** `SortAscXIP` throws `KernelNotCompiledException` mentioning `floatToSortableInt`.
+
+#### `ArgsortAscX_Float_WithoutSortingDomain_ThrowsKernelNotCompiledException` — `SortingDomainLoadTests`
+
+- **Source:** `Tests/Core/GPU/SortingDomainLoadTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** Same device setup as the float sort case (Default workload only).
+- **Then** `ArgsortAscX` throws `KernelNotCompiledException` mentioning `floatToSortableInt`.
+
+#### `SortAscXIP_2D_Int_WithoutSortingDomain_ThrowsKernelNotCompiledException` — `SortingDomainLoadTests`
+
+- **Source:** `Tests/Core/GPU/SortingDomainLoadTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** A fresh `GPU` with only `KernelWorkloads.Default` loaded and a 2×3 `VectorInt`.
+- **Then** `SortAscXIP` throws `KernelNotCompiledException` mentioning `segmentedSortIntAscIP`.
+
 ## Core / Generators
 
 ### Coverage gaps (manual)
@@ -686,7 +706,8 @@ _Add untested edge cases here during review._
 
 ### Coverage gaps (manual)
 
-_Add untested edge cases here during review._
+- Large-N (100_001) GPU **2D** sort/argsort row paths are still only covered at smaller sizes elsewhere.
+- `GpuSortingCore.SortX` / `ArgsortX` order dispatch is partially covered via float `SortXIP` theory; int GPU `SortX(order)` is not mirrored.
 
 ### `ArgsortTests`
 
@@ -776,6 +797,30 @@ _Add untested edge cases here during review._
 - **Given** Same tight-memory `GPU`; four iterations of length-512 random `Vector` floats with `columns: 8`.
 - **Then** Each `ArgsortDescX` leaves input unchanged and indices sort each row in descending order.
 
+#### `SortAscXIP_1D_Int_SurvivesRepeatedEvictionPressure` — `SortMemoryPressureTests`
+
+- **Source:** `Tests/Core/Sorting/SortMemoryPressureTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** Tight-memory isolated `GPU`; four iterations of length-512 random flat `VectorInt` (seed `2027`).
+- **Then** Each `SortAscXIP` mutates the vector to match per-segment ascending `Array.Sort` reference.
+
+#### `SortDescXIP_1D_Float_SurvivesRepeatedEvictionPressure` — `SortMemoryPressureTests`
+
+- **Source:** `Tests/Core/Sorting/SortMemoryPressureTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** Same tight-memory `GPU`; four iterations of length-512 random flat `Vector` floats.
+- **Then** Each `SortDescXIP` mutates the vector to match per-segment descending sort reference.
+
+#### `SortDescXIP_2D_Int_SurvivesRepeatedEvictionPressure` — `SortMemoryPressureTests`
+
+- **Source:** `Tests/Core/Sorting/SortMemoryPressureTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** Same tight-memory `GPU`; four iterations of length-512 random `VectorInt` with `columns: 8`.
+- **Then** Each `SortDescXIP` sorts every row independently in descending order.
+
+#### `ArgsortAscXIP_1D_Int_SurvivesRepeatedEvictionPressure` — `SortMemoryPressureTests`
+
+- **Source:** `Tests/Core/Sorting/SortMemoryPressureTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** Same tight-memory `GPU`; four iterations with caller-provided indices buffer matching a flat length-512 `VectorInt`.
+- **Then** Each `ArgsortAscXIP` leaves input unchanged and indices sort values in ascending order.
+
 ### `SortShapeEdgeCaseTests`
 
 #### `SortAscIP_ColumnVector_MatchesArraySort` — `SortShapeEdgeCaseTests`
@@ -795,6 +840,18 @@ _Add untested edge cases here during review._
 - **Source:** `Tests/Core/Sorting/SortShapeEdgeCaseTests.cs` · `[Fact]` · `GpuSerial`
 - **Given** Duplicate column-layout (`columns: 1`) GPU `VectorInt` copies of 100_001 random ints.
 - **Then** After `SortAscXIP` vs CPU `SortAscIP`, synced GPU values equal synced CPU values.
+
+#### `SortAscXIP_Flat1D_RadixTempAlignedScratchLength_MatchesCpu_Float` — `SortShapeEdgeCaseTests`
+
+- **Source:** `Tests/Core/Sorting/SortShapeEdgeCaseTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** `N = 100_001` (length not a multiple of four) and duplicate flat GPU `Vector` copies of random floats (seed `2026`).
+- **Then** After `SortAscXIP` vs CPU `SortAscIP`, synced GPU values match CPU within test tolerance (guards radix temp alignment in shared scratch).
+
+#### `SortDescXIP_Flat1D_Large_MatchesCpu` — `SortShapeEdgeCaseTests`
+
+- **Source:** `Tests/Core/Sorting/SortShapeEdgeCaseTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** Duplicate flat GPU `VectorInt` copies of 100_001 random ints.
+- **Then** After `SortDescXIP` vs CPU `SortDescIP`, synced GPU values equal synced CPU values.
 
 #### `SortDescXIP_Flat1D_Large_MatchesCpu_Float` — `SortShapeEdgeCaseTests`
 
@@ -825,6 +882,30 @@ _Add untested edge cases here during review._
 - **Source:** `Tests/Core/Sorting/SortShapeEdgeCaseTests.cs` · `[Fact]` · `GpuSerial`
 - **Given** Duplicate flat GPU `Vector` copies of 100_001 random floats.
 - **Then** `ArgsortDescX` and CPU `ArgsortDesc` indices each yield globally descending order.
+
+#### `ArgsortAscX_Flat1D_Large_MatchesCpu_Float` — `SortShapeEdgeCaseTests`
+
+- **Source:** `Tests/Core/Sorting/SortShapeEdgeCaseTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** Duplicate flat GPU `Vector` copies of 100_001 random floats.
+- **Then** `ArgsortAscX` and CPU `ArgsortAsc` indices each yield globally ascending order.
+
+#### `ArgsortDescX_Flat1D_Large_MatchesCpu` — `SortShapeEdgeCaseTests`
+
+- **Source:** `Tests/Core/Sorting/SortShapeEdgeCaseTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** Duplicate flat GPU `VectorInt` copies of 100_001 random ints.
+- **Then** `ArgsortDescX` and CPU `ArgsortDesc` indices each yield globally descending order.
+
+#### `ArgsortAscXIP_Flat1D_RadixTempAlignedScratchLength_MatchesCpu` — `SortShapeEdgeCaseTests`
+
+- **Source:** `Tests/Core/Sorting/SortShapeEdgeCaseTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** `N = 100_001`, flat `VectorInt` data, and pre-sized indices buffers on CPU and GPU.
+- **Then** `ArgsortAscXIP` on GPU and `ArgsortAscIP` on CPU each produce globally ascending index order (stable tie-breaking not required).
+
+#### `ArgsortAscXIP_Flat1D_Large_MatchesCpu_Float` — `SortShapeEdgeCaseTests`
+
+- **Source:** `Tests/Core/Sorting/SortShapeEdgeCaseTests.cs` · `[Fact]` · `GpuSerial`
+- **Given** `N = 100_001`, flat `Vector` float data, and matching indices buffers on CPU and GPU.
+- **Then** GPU `ArgsortAscXIP` and CPU `ArgsortAscIP` each yield globally ascending index order.
 
 ### `VectorIntSortTests`
 
@@ -916,6 +997,15 @@ _Add untested edge cases here during review._
 - **Source:** `Tests/Core/Sorting/VectorSortTests.cs` · `[Fact]` · `GpuSerial`
 - **Given** Same 96 random floats in flat `Vector` vs column layout (`columns: 1`).
 - **Then** After `SortAscIP` on both, synced values match within test tolerance.
+
+#### `SortXIP_WithOrder_MatchesNamedMethods_Gpu` — `VectorSortTests`
+
+- **Source:** `Tests/Core/Sorting/VectorSortTests.cs` · `[Theory]` · `GpuSerial`
+- **Given** Duplicate flat GPU `Vector` copies of 128 random floats (seed `17`).
+- **Then** `SortXIP(order)` produces the same synced values as `SortAscXIP` or `SortDescXIP` for that order.
+- **Cases:**
+  - order=SortOrder.Ascending
+  - order=SortOrder.Descending
 
 #### `SortAscXIP_MatchesCpuSort_1D` — `VectorSortTests`
 
@@ -3751,4 +3841,4 @@ _Add untested edge cases here during review._
 
 ---
 
-**Last audited:** 2026-10-11 — 531 test methods across 82 test classes.
+**Last audited:** 2026-10-19 — 545 catalogued test methods (793 total in assembly; 83 test classes).

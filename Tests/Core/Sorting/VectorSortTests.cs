@@ -47,6 +47,24 @@ public class VectorSortTests(GpuTestFixture fixture) : GpuTestBase(fixture)
         SyncValues(flat).ShouldBeCloseTo(SyncValues(column));
     }
 
+    [Theory]
+    [InlineData(SortOrder.Ascending)]
+    [InlineData(SortOrder.Descending)]
+    public void SortXIP_WithOrder_MatchesNamedMethods_Gpu(SortOrder order)
+    {
+        float[] data = RandomData(128);
+        var viaOrder = CreateVector(data);
+        var viaNamed = CreateVector(data);
+
+        viaOrder.SortXIP(order);
+        if (order == SortOrder.Ascending)
+            viaNamed.SortAscXIP();
+        else
+            viaNamed.SortDescXIP();
+
+        SyncValues(viaOrder).ShouldBeCloseTo(SyncValues(viaNamed));
+    }
+
     [Fact]
     public void SortAscXIP_MatchesCpuSort_1D()
     {

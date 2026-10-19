@@ -73,6 +73,19 @@ public class SortShapeEdgeCaseTests(GpuTestFixture fixture) : GpuTestBase(fixtur
 	}
 
 	[Fact]
+	public void SortDescXIP_Flat1D_Large_MatchesCpu()
+	{
+		int[] data = RandomIntData(LargeN);
+		var cpu = CreateVectorInt(data);
+		var gpu = CreateVectorInt(data);
+
+		cpu.SortDescIP();
+		gpu.SortDescXIP();
+
+		SyncValues(gpu).Should().Equal(SyncValues(cpu));
+	}
+
+	[Fact]
 	public void SortDescXIP_Flat1D_Large_MatchesCpu_Float()
 	{
 		float[] data = RandomFloatData(LargeN);
@@ -138,6 +151,71 @@ public class SortShapeEdgeCaseTests(GpuTestFixture fixture) : GpuTestBase(fixtur
 
 		ArgsortTestsHelper.AssertGlobalArgsort(data, actual, SortOrder.Descending);
 		ArgsortTestsHelper.AssertGlobalArgsort(data, expected, SortOrder.Descending);
+	}
+
+	[Fact]
+	public void ArgsortAscX_Flat1D_Large_MatchesCpu_Float()
+	{
+		float[] data = RandomFloatData(LargeN);
+		var cpu = CreateVector(data);
+		var gpu = CreateVector(data);
+
+		int[] expected = SyncValues(cpu.ArgsortAsc());
+		int[] actual = SyncValues(gpu.ArgsortAscX());
+
+		ArgsortTestsHelper.AssertGlobalArgsort(data, actual, SortOrder.Ascending);
+		ArgsortTestsHelper.AssertGlobalArgsort(data, expected, SortOrder.Ascending);
+	}
+
+	[Fact]
+	public void ArgsortDescX_Flat1D_Large_MatchesCpu()
+	{
+		int[] data = RandomIntData(LargeN);
+		var cpu = CreateVectorInt(data);
+		var gpu = CreateVectorInt(data);
+
+		int[] expected = SyncValues(cpu.ArgsortDesc());
+		int[] actual = SyncValues(gpu.ArgsortDescX());
+
+		ArgsortTestsHelper.AssertGlobalArgsort(data, actual, SortOrder.Descending);
+		ArgsortTestsHelper.AssertGlobalArgsort(data, expected, SortOrder.Descending);
+	}
+
+	/// <summary>
+	/// Regression for ILGPU radix-pairs temp alignment on the in-place argsort path at <see cref="LargeN"/>.
+	/// </summary>
+	[Fact]
+	public void ArgsortAscXIP_Flat1D_RadixTempAlignedScratchLength_MatchesCpu()
+	{
+		(LargeN % 4).Should().Be(1);
+
+		int[] data = RandomIntData(LargeN);
+		var cpu = CreateVectorInt(data);
+		var gpu = CreateVectorInt(data);
+		var cpuIndices = CreateVectorInt(new int[LargeN]);
+		var gpuIndices = CreateVectorInt(new int[LargeN]);
+
+		cpu.ArgsortAscIP(cpuIndices);
+		gpu.ArgsortAscXIP(gpuIndices);
+
+		ArgsortTestsHelper.AssertGlobalArgsort(data, SyncValues(gpuIndices), SortOrder.Ascending);
+		ArgsortTestsHelper.AssertGlobalArgsort(data, SyncValues(cpuIndices), SortOrder.Ascending);
+	}
+
+	[Fact]
+	public void ArgsortAscXIP_Flat1D_Large_MatchesCpu_Float()
+	{
+		float[] data = RandomFloatData(LargeN);
+		var cpu = CreateVector(data);
+		var gpu = CreateVector(data);
+		var cpuIndices = CreateVectorInt(new int[LargeN]);
+		var gpuIndices = CreateVectorInt(new int[LargeN]);
+
+		cpu.ArgsortAscIP(cpuIndices);
+		gpu.ArgsortAscXIP(gpuIndices);
+
+		ArgsortTestsHelper.AssertGlobalArgsort(data, SyncValues(gpuIndices), SortOrder.Ascending);
+		ArgsortTestsHelper.AssertGlobalArgsort(data, SyncValues(cpuIndices), SortOrder.Ascending);
 	}
 
 	static int[] RandomIntData(int length)

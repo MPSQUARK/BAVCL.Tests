@@ -50,6 +50,121 @@ public sealed class SortMemoryPressureTests(TightMemoryGpuFixture fixture) : ICl
 			AssertFloatArgsortRoundTrip(columns: 8);
 	}
 
+	[Fact]
+	public void SortAscXIP_1D_Int_SurvivesRepeatedEvictionPressure()
+	{
+		for (int iteration = 0; iteration < 4; iteration++)
+			AssertIntSortRoundTrip(columns: 0, SortOrder.Ascending);
+	}
+
+	[Fact]
+	public void SortDescXIP_1D_Float_SurvivesRepeatedEvictionPressure()
+	{
+		for (int iteration = 0; iteration < 4; iteration++)
+			AssertFloatSortRoundTrip(columns: 0, SortOrder.Descending);
+	}
+
+	[Fact]
+	public void SortDescXIP_2D_Int_SurvivesRepeatedEvictionPressure()
+	{
+		for (int iteration = 0; iteration < 4; iteration++)
+			AssertIntSortRoundTrip(columns: 8, SortOrder.Descending);
+	}
+
+	[Fact]
+	public void ArgsortAscXIP_1D_Int_SurvivesRepeatedEvictionPressure()
+	{
+		for (int iteration = 0; iteration < 4; iteration++)
+			AssertIntArgsortXipRoundTrip(columns: 0);
+	}
+
+	void AssertIntSortRoundTrip(int columns, SortOrder order)
+	{
+		int[] data = RandomIntData(VectorLength);
+		var vector = new VectorInt(_gpu, data, columns);
+		int[] expected = (int[])data.Clone();
+		SortReference(expected, columns, order);
+
+		if (order == SortOrder.Ascending)
+			vector.SortAscXIP();
+		else
+			vector.SortDescXIP();
+
+		vector.ToArray().Should().Equal(expected);
+	}
+
+	void AssertFloatSortRoundTrip(int columns, SortOrder order)
+	{
+		float[] data = RandomFloatData(VectorLength);
+		var vector = new Vector(_gpu, data, columns);
+		float[] expected = (float[])data.Clone();
+		SortReference(expected, columns, order);
+
+		if (order == SortOrder.Ascending)
+			vector.SortAscXIP();
+		else
+			vector.SortDescXIP();
+
+		vector.ToArray().Should().Equal(expected);
+	}
+
+	static void SortReference(int[] data, int columns, SortOrder order)
+	{
+		if (columns == 0)
+		{
+			if (order == SortOrder.Descending)
+				Array.Sort(data, Comparer<int>.Create((a, b) => b.CompareTo(a)));
+			else
+				Array.Sort(data);
+			return;
+		}
+
+		int rowCount = data.Length / columns;
+		for (int row = 0; row < rowCount; row++)
+		{
+			int offset = row * columns;
+			if (order == SortOrder.Descending)
+				Array.Sort(data, offset, columns, Comparer<int>.Create((a, b) => b.CompareTo(a)));
+			else
+				Array.Sort(data, offset, columns);
+		}
+	}
+
+	static void SortReference(float[] data, int columns, SortOrder order)
+	{
+		if (columns == 0)
+		{
+			if (order == SortOrder.Descending)
+				Array.Sort(data, Comparer<float>.Create((a, b) => b.CompareTo(a)));
+			else
+				Array.Sort(data);
+			return;
+		}
+
+		int rowCount = data.Length / columns;
+		for (int row = 0; row < rowCount; row++)
+		{
+			int offset = row * columns;
+			if (order == SortOrder.Descending)
+				Array.Sort(data, offset, columns, Comparer<float>.Create((a, b) => b.CompareTo(a)));
+			else
+				Array.Sort(data, offset, columns);
+		}
+	}
+
+	void AssertIntArgsortXipRoundTrip(int columns)
+	{
+		int[] data = RandomIntData(VectorLength);
+		var input = new VectorInt(_gpu, data, columns);
+		int[] before = input.ToArray();
+		var indices = new VectorInt(_gpu, new int[VectorLength], columns);
+
+		input.ArgsortAscXIP(indices);
+
+		input.ToArray().Should().Equal(before);
+		AssertSortedOrder(before, indices.ToArray(), columns, SortOrder.Ascending);
+	}
+
 	void AssertIntArgsortRoundTrip(int columns)
 	{
 		int[] data = RandomIntData(VectorLength);
@@ -133,13 +248,12 @@ public sealed class SortMemoryPressureTests(TightMemoryGpuFixture fixture) : ICl
 
 /// <summary>
 /// A dedicated <see cref="global::BAVCL.GPU"/> instance, built once per test class run, whose memory
-/// budget is tight enough to force real LRU evictions during argsort calls without ever starving the
+/// budget is tight enough to force real LRU evictions during sort and argsort calls without ever starving the
 /// currently-pinned input/indices/scratch objects.
 /// </summary>
 /// <remarks>
-/// LRU budget matches peak concurrent <c>MemoryUsed</c> for these argsort paths (input + indices + pool
-/// scratch), including 1D radix pairs temp sized via
-/// <see cref="Accelerator.ComputeRadixSortPairsTempStorageSize{TKey,TValue,TOperation}"/>, plus one
+/// LRU budget matches peak concurrent <c>MemoryUsed</c> for sort and argsort paths (vector and/or indices plus pool
+/// scratch), including 1D radix temp aligned via the same offset rule as <c>SortAlgorithms.RadixTempOffset</c>, plus one
 /// <c>VectorLength</c> vector of slack so repeated iterations can evict prior leftovers.
 /// </remarks>
 public sealed class TightMemoryGpuFixture : IDisposable
@@ -151,7 +265,7 @@ public sealed class TightMemoryGpuFixture : IDisposable
 	public TightMemoryGpuFixture()
 	{
 		Accelerator accelerator = BAVCL.GPUManager.GetPreferedAccelerator(forceCPU: false);
-		long tightBudgetBytes = ComputeTightArgsortBudgetBytes(accelerator, VectorLength);
+		long tightBudgetBytes = ComputeTightSortingBudgetBytes(accelerator, VectorLength);
 		var memoryManager = new BAVCL.Core.LRU { AvailableMemory = tightBudgetBytes };
 		Gpu = new global::BAVCL.GPU(accelerator, memoryManager);
 		KernelModuleLoader.Load<float>(Gpu, KernelWorkloads.Sorting);
@@ -161,21 +275,41 @@ public sealed class TightMemoryGpuFixture : IDisposable
 	public void Dispose() => Gpu.Dispose();
 
 	/// <summary>Matches <see cref="ElementBufferPool{T}"/> capacity rounding and <c>SortAlgorithms</c> rents.</summary>
-	static long ComputeTightArgsortBudgetBytes(Accelerator accelerator, int length)
+	static long ComputeTightSortingBudgetBytes(Accelerator accelerator, int length)
 	{
+		int radixTempOffset = RadixTempOffset(length);
 		int radixPairsElements = (int)accelerator.ComputeRadixSortPairsTempStorageSize<int, int, AscendingInt32>(length);
+		int radixSortElements = (int)accelerator.ComputeRadixSortTempStorageSize<int, AscendingInt32>(length);
 
-		long peak1DBytes =
+		long argsort1DBytes =
 			2L * length * sizeof(int) +
-			PoolCapacity(length + radixPairsElements) * sizeof(int);
+			PoolCapacity(radixTempOffset + radixPairsElements) * sizeof(int);
 
-		long peak2DBytes =
+		long argsort2DBytes =
 			2L * length * sizeof(int) +
 			PoolCapacity(length * 3) * sizeof(int);
 
-		long peakBytes = Math.Max(peak1DBytes, peak2DBytes);
+		long sort1DIntBytes =
+			length * sizeof(int) +
+			PoolCapacity(radixSortElements) * sizeof(int);
+
+		long sort1DFloatBytes =
+			length * sizeof(float) +
+			PoolCapacity(radixTempOffset + radixSortElements) * sizeof(int);
+
+		long sort2DIntBytes =
+			length * sizeof(int) +
+			PoolCapacity(length) * sizeof(int);
+
+		long peakBytes = Math.Max(
+			Math.Max(argsort1DBytes, argsort2DBytes),
+			Math.Max(Math.Max(sort1DIntBytes, sort1DFloatBytes), sort2DIntBytes));
+
 		return peakBytes + length * sizeof(int);
 	}
+
+	static int RadixTempOffset(int length) =>
+		(length + 3) & ~3;
 
 	static int PoolCapacity(int length) =>
 		(int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(length, 1));
