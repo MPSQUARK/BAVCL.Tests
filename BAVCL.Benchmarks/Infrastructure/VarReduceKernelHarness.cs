@@ -102,6 +102,6 @@ public static class VarReduceKernelHarness
 			VarianceAccum.Merge(ref count, ref mean, ref m2, groupCount, triples[i + 1], triples[i + 2]);
 		}
 
-		return VarianceAccumOps.FromAccumulators(count, m2);
+		return VarianceAccum.PopulationVarianceFromMoments(count, m2);
 	}
 }
