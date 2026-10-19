@@ -1,3 +1,4 @@
+global using BAVCL;
 global using BAVCL.Core;
 global using BAVCL.Modules.Arithmetic;
 global using BAVCL.Modules.Generators;

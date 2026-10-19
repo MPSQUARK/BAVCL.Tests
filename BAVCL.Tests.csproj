@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);BAVCL.Benchmarks/**;BAVCL.Benchmarks.Viewer/**;BAVCL.Samples/**</DefaultItemExcludes>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -26,17 +27,21 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BAVCL\BAVCL.csproj" />
-    <ProjectReference Include="BAVCL.Samples\BAVCL.Samples.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="BAVCL.Benchmarks\**" />
     <None Remove="BAVCL.Benchmarks\**" />
     <Content Remove="BAVCL.Benchmarks\**" />
+    <Compile Remove="BAVCL.Benchmarks.Viewer\**" />
+    <None Remove="BAVCL.Benchmarks.Viewer\**" />
+    <Content Remove="BAVCL.Benchmarks.Viewer\**" />
     <Compile Include="BAVCL.Benchmarks\Infrastructure\VarReduceKernelHarness.cs" Link="Tests\Helpers\VarReduceKernelHarness.cs" />
     <Compile Remove="BAVCL.Samples\**" />
     <None Remove="BAVCL.Samples\**" />
     <Content Remove="BAVCL.Samples\**" />
+    <Compile Remove="Tests\Graphs\**" />
+    <None Remove="Tests\Graphs\**" />
   </ItemGroup>
 
   <ItemGroup>
