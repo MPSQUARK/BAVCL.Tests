@@ -74,6 +74,6 @@ public class VectorMatrixOpsTests(GpuTestFixture fixture) : GpuTestBase(fixture)
 
         Action act = () => vector.MatrixAddX(matrix);
 
-        act.Should().Throw<ShapeMismatchException>();
+        act.Should().Throw<MatrixLayoutException>();
     }
 }
