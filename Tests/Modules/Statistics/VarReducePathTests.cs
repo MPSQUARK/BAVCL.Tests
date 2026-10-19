@@ -1,5 +1,6 @@
 using BAVCL.Core.Helpers;
 using BAVCL.Core.Kernels;
+using BAVCL.Core.Helpers.Numerics;
 using BAVCL.Benchmarks.Infrastructure;
 using BAVCL.Tests.Helpers;
 
@@ -27,7 +28,7 @@ public class VarReducePathTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         float[] data = RandomData(length);
         var vector = CreateVector(data);
-        float expected = VarianceAccumOps.PopulationVariance(data);
+        float expected = VarianceAccum.PopulationVariance(data);
 
         foreach (VarReduceKernelHarness.Path path in Enum.GetValues<VarReduceKernelHarness.Path>())
             VarReduceKernelHarness.VarFloat(vector, path).ShouldBeCloseTo(expected, 1e-5f);
@@ -41,7 +42,7 @@ public class VarReducePathTests(GpuTestFixture fixture) : GpuTestBase(fixture)
     {
         int[] data = RandomIntData(length);
         var vector = CreateVectorInt(data);
-        float expected = VarianceAccumOps.PopulationVariance(data);
+        float expected = VarianceAccum.PopulationVariance(data);
 
         foreach (VarReduceKernelHarness.Path path in Enum.GetValues<VarReduceKernelHarness.Path>())
             VarReduceKernelHarness.VarInt(vector, path).ShouldBeCloseTo(expected, 1e-5f);
