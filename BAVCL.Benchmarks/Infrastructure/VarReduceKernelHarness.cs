@@ -1,4 +1,5 @@
 using BAVCL.Core.Helpers;
+using BAVCL.Core.Helpers.Numerics;
 using BAVCL.Core.Kernels;
 using BAVCL.Core.Memory;
 using ILGPU;
@@ -98,7 +99,7 @@ public static class VarReduceKernelHarness
 		for (int i = 0; i + 2 < triples.Length; i += 3)
 		{
 			int groupCount = (int)triples[i];
-			VarianceAccumOps.Merge(ref count, ref mean, ref m2, groupCount, triples[i + 1], triples[i + 2]);
+			VarianceAccum.Merge(ref count, ref mean, ref m2, groupCount, triples[i + 1], triples[i + 2]);
 		}
 
 		return VarianceAccumOps.FromAccumulators(count, m2);
