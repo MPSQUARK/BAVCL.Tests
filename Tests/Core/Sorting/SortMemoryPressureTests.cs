@@ -1,4 +1,8 @@
+using System.Numerics;
 using BAVCL.Modules.Sorting;
+using ILGPU.Algorithms;
+using ILGPU.Algorithms.RadixSortOperations;
+using ILGPU.Runtime;
 
 namespace BAVCL.Tests.Core.Sorting;
 
@@ -133,27 +137,46 @@ public sealed class SortMemoryPressureTests(TightMemoryGpuFixture fixture) : ICl
 /// currently-pinned input/indices/scratch objects.
 /// </summary>
 /// <remarks>
-/// Peak concurrent footprint for the 2D pairs-argsort path (input + indices + keys scratch + the
-/// double-width segmented pairs temp) is 5 vectors of <see cref="SortMemoryPressureTests"/>'s
-/// VectorLength ints. The budget below adds one more vector's worth of slack on top of that peak, so
-/// each call's allocations force eviction of the prior iteration's leftovers instead of ever starving
-/// a still-pinned object.
+/// LRU budget matches peak concurrent <c>MemoryUsed</c> for these argsort paths (input + indices + pool
+/// scratch), including 1D radix pairs temp sized via
+/// <see cref="Accelerator.ComputeRadixSortPairsTempStorageSize{TKey,TValue,TOperation}"/>, plus one
+/// <c>VectorLength</c> vector of slack so repeated iterations can evict prior leftovers.
 /// </remarks>
 public sealed class TightMemoryGpuFixture : IDisposable
 {
 	const int VectorLength = 512;
-	const long TightBudgetBytes = 6L * VectorLength * sizeof(int);
 
 	public global::BAVCL.GPU Gpu { get; }
 
 	public TightMemoryGpuFixture()
 	{
-		var accelerator = BAVCL.GPUManager.GetPreferedAccelerator(forceCPU: false);
-		var memoryManager = new BAVCL.Core.LRU { AvailableMemory = TightBudgetBytes };
+		Accelerator accelerator = BAVCL.GPUManager.GetPreferedAccelerator(forceCPU: false);
+		long tightBudgetBytes = ComputeTightArgsortBudgetBytes(accelerator, VectorLength);
+		var memoryManager = new BAVCL.Core.LRU { AvailableMemory = tightBudgetBytes };
 		Gpu = new global::BAVCL.GPU(accelerator, memoryManager);
 		KernelModuleLoader.Load<float>(Gpu, KernelWorkloads.Sorting);
 		KernelModuleLoader.Load<int>(Gpu, KernelWorkloads.Sorting);
 	}
 
 	public void Dispose() => Gpu.Dispose();
+
+	/// <summary>Matches <see cref="ElementBufferPool{T}"/> capacity rounding and <c>SortAlgorithms</c> rents.</summary>
+	static long ComputeTightArgsortBudgetBytes(Accelerator accelerator, int length)
+	{
+		int radixPairsElements = (int)accelerator.ComputeRadixSortPairsTempStorageSize<int, int, AscendingInt32>(length);
+
+		long peak1DBytes =
+			2L * length * sizeof(int) +
+			PoolCapacity(length + radixPairsElements) * sizeof(int);
+
+		long peak2DBytes =
+			2L * length * sizeof(int) +
+			PoolCapacity(length * 3) * sizeof(int);
+
+		long peakBytes = Math.Max(peak1DBytes, peak2DBytes);
+		return peakBytes + length * sizeof(int);
+	}
+
+	static int PoolCapacity(int length) =>
+		(int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(length, 1));
 }

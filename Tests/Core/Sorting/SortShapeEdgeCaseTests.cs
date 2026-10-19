@@ -52,6 +52,26 @@ public class SortShapeEdgeCaseTests(GpuTestFixture fixture) : GpuTestBase(fixtur
 		SyncValues(gpu).Should().Equal(SyncValues(cpu));
 	}
 
+	/// <summary>
+	/// Regression for ILGPU radix temp alignment: at <see cref="LargeN"/> (100_001), carving temp at key
+	/// offset <c>length</c> is not 16-byte aligned; <c>SortAlgorithms.RadixTempOffset</c> must round up
+	/// before <c>Sort1D</c> float keys-only radix sort uses shared scratch (see spec §5.2.8).
+	/// </summary>
+	[Fact]
+	public void SortAscXIP_Flat1D_RadixTempAlignedScratchLength_MatchesCpu_Float()
+	{
+		(LargeN % 4).Should().Be(1);
+
+		float[] data = RandomFloatData(LargeN);
+		var cpu = CreateVector(data);
+		var gpu = CreateVector(data);
+
+		cpu.SortAscIP();
+		gpu.SortAscXIP();
+
+		SyncValues(gpu).ShouldBeCloseTo(SyncValues(cpu));
+	}
+
 	[Fact]
 	public void SortDescXIP_Flat1D_Large_MatchesCpu_Float()
 	{
