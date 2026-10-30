@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="./BAVCL.Tests.csproj" />
+  <Project Path="./BAVCL.Benchmarks/BAVCL.Benchmarks.csproj" />
+  <Project Path="./BAVCL.Benchmarks.Viewer/BAVCL.Benchmarks.Viewer.csproj" />
+  <Project Path="./BAVCL.Samples/BAVCL.Samples.csproj" />
+</Solution>
