@@ -14,7 +14,7 @@ public class MaskCompactionAbTests(GpuTestFixture fixture) : GpuTestBase(fixture
 		Vector vector = CreateVector([10f, 20f, 30f, 40f]);
 		Mask mask = CreateMask([true, false, true, false]);
 
-		float[] expected = SyncValues(MaskCompactionReference.FilterX(vector, mask));
+		float[] expected = SyncValues(MaskCompactionCpu.Filter(vector, mask));
 		float[] actual = SyncValues(MaskCompaction.FilterX(vector, mask));
 
 		actual.ShouldBeCloseTo(expected);
@@ -26,7 +26,7 @@ public class MaskCompactionAbTests(GpuTestFixture fixture) : GpuTestBase(fixture
 		Vector vector = CreateVector([1f, 2f, 3f, 4f]);
 		Mask mask = CreateMask([true, false, true, false]);
 
-		(Vector expectedTrue, Vector expectedFalse) = MaskCompactionReference.PartitionX(vector, mask);
+		(Vector expectedTrue, Vector expectedFalse) = MaskCompactionCpu.Partition(vector, mask);
 		(Vector actualTrue, Vector actualFalse) = MaskCompaction.PartitionX(vector, mask);
 
 		SyncValues(actualTrue).ShouldBeCloseTo(SyncValues(expectedTrue));
@@ -38,7 +38,7 @@ public class MaskCompactionAbTests(GpuTestFixture fixture) : GpuTestBase(fixture
 	{
 		Mask mask = CreateMask([false, true, false, true, true]);
 
-		int[] expected = SyncValues(MaskCompactionReference.Where(mask));
+		int[] expected = SyncValues(MaskCompactionCpu.Where(mask));
 		int[] actual = SyncValues(MaskCompaction.WhereX(mask));
 
 		actual.Should().Equal(expected);
@@ -51,7 +51,7 @@ public class MaskCompactionAbTests(GpuTestFixture fixture) : GpuTestBase(fixture
 		Vector vector = CreateVector([.. Enumerable.Range(0, 33).Select(i => (float)i)]);
 		Mask mask = CreateMask(bits);
 
-		float[] expected = SyncValues(MaskCompactionReference.FilterX(vector, mask));
+		float[] expected = SyncValues(MaskCompactionCpu.Filter(vector, mask));
 		float[] actual = SyncValues(MaskCompaction.FilterX(vector, mask));
 
 		actual.ShouldBeCloseTo(expected);
@@ -63,7 +63,7 @@ public class MaskCompactionAbTests(GpuTestFixture fixture) : GpuTestBase(fixture
 		VectorInt vector = CreateVectorInt([1, 2, 3, 4]);
 		Mask mask = CreateMask([true, false, true, false]);
 
-		int[] expected = SyncValues(MaskCompactionReference.FilterX(vector, mask));
+		int[] expected = SyncValues(MaskCompactionCpu.Filter(vector, mask));
 		int[] actual = SyncValues(MaskCompaction.FilterX(vector, mask));
 
 		actual.Should().Equal(expected);
@@ -75,7 +75,7 @@ public class MaskCompactionAbTests(GpuTestFixture fixture) : GpuTestBase(fixture
 		Vector vector = CreateVector([10f, 20f, 30f, 40f]);
 		Mask mask = CreateMask([true, false, true, false]);
 
-		float[] legacy = SyncValues(MaskCompactionReference.Filter(vector, mask, syncToGpu: false));
+		float[] legacy = SyncValues(MaskCompactionCpu.Filter(vector, mask, syncToGpu: false));
 		float[] scan = SyncValues(MaskCompactionCpu.Filter(vector, mask, syncToGpu: false));
 
 		scan.ShouldBeCloseTo(legacy);
@@ -87,7 +87,7 @@ public class MaskCompactionAbTests(GpuTestFixture fixture) : GpuTestBase(fixture
 		Vector vector = CreateVector([5f, 6f, 7f, 8f]);
 		Mask mask = CreateMask([true, true, false, false]);
 
-		float[] viaReference = SyncValues(MaskCompactionReference.FilterX(vector, mask));
+		float[] viaReference = SyncValues(MaskCompactionCpu.Filter(vector, mask));
 		float[] viaOperator = SyncValues(vector | mask);
 
 		viaOperator.ShouldBeCloseTo(viaReference);

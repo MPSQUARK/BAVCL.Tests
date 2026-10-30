@@ -6,9 +6,9 @@ Domain-realistic workloads comparing **eager** BAVCL (per-op GPU launch + sync) 
 
 Projects in this repo reference the graph worktree:
 
-`..\BAVCL-graph\BAVCL.csproj` from `BAVCL.Tests.csproj` (`graph-experimental` branch; `..\..\BAVCL-graph` from `BAVCL.Samples` / `BAVCL.Benchmarks`).
+`..\..\..\BAVCL-graph\BAVCL.csproj` from `BAVCL.Samples` (`graph-experimental` branch). `BAVCL.Tests` and `BAVCL.Benchmarks` reference the main library at `..\BAVCL\BAVCL.csproj` and `..\..\BAVCL\BAVCL.csproj`.
 
-Point those references at `..\BAVCL\BAVCL.csproj` instead when benchmarking merged main.
+`BAVCL.Samples` stays on the graph checkout. The test and benchmark projects already reference the main library.
 
 ## Samples
 
